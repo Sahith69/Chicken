@@ -1,0 +1,92 @@
+{
+  "backbone": "efficientnet_b0",
+  "checkpoint": "/home/sahith/Projects/Chicken/runs/20260920_215109_efficientnet_b0_weighted_ce/best_model.pth",
+  "test_samples": 1209,
+  "accuracy": 0.8941273779983457,
+  "macro_avg_f1": 0.8714376545199868,
+  "weighted_avg_f1": 0.8957548901054575,
+  "roc_auc": {
+    "Coccidiosis": 0.9902635054601681,
+    "Healthy": 0.9723694010348614,
+    "Newcastle Disease": 0.9873756613756614,
+    "Salmonella": 0.9820155087041824,
+    "macro_avg": 0.9830060191437183
+  },
+  "classification_report": {
+    "Coccidiosis": {
+      "precision": 0.9501385041551247,
+      "recall": 0.927027027027027,
+      "f1-score": 0.9384404924760602,
+      "support": 370.0
+    },
+    "Healthy": {
+      "precision": 0.8785310734463276,
+      "recall": 0.8614958448753463,
+      "f1-score": 0.8699300699300699,
+      "support": 361.0
+    },
+    "Newcastle Disease": {
+      "precision": 0.672566371681416,
+      "recall": 0.9047619047619048,
+      "f1-score": 0.7715736040609137,
+      "support": 84.0
+    },
+    "Salmonella": {
+      "precision": 0.9212598425196851,
+      "recall": 0.8908629441624365,
+      "f1-score": 0.9058064516129032,
+      "support": 394.0
+    },
+    "accuracy": 0.8941273779983457,
+    "macro avg": {
+      "precision": 0.8556239479506383,
+      "recall": 0.8960369302066786,
+      "f1-score": 0.8714376545199868,
+      "support": 1209.0
+    },
+    "weighted avg": {
+      "precision": 0.9000603120144876,
+      "recall": 0.8941273779983457,
+      "f1-score": 0.8957548901054575,
+      "support": 1209.0
+    }
+  },
+  "confusion_matrix": [
+    [
+      343,
+      9,
+      8,
+      10
+    ],
+    [
+      16,
+      311,
+      16,
+      18
+    ],
+    [
+      1,
+      5,
+      76,
+      2
+    ],
+    [
+      1,
+      29,
+      13,
+      351
+    ]
+  ],
+  "confusion_analysis": {
+    "coccidiosis_to_salmonella": 10,
+    "salmonella_to_coccidiosis": 1,
+    "newcastle_recall": 0.9047619047619048,
+    "newcastle_precision": 0.672566371681416,
+    "newcastle_false_alarms": {
+      "total": 37,
+      "from_healthy": 16,
+      "from_salmonella": 13,
+      "from_coccidiosis": 8
+    }
+  }
+}

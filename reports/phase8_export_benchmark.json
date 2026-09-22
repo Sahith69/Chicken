@@ -1,0 +1,44 @@
+{
+  "file_sizes_mb": {
+    "pytorch_pth": 15.583898544311523,
+    "onnx_fp32": 15.282987594604492,
+    "onnx_int8": 4.110957145690918,
+    "onnx_dual_fp32": 15.283892631530762,
+    "onnx_dual_int8": 4.112587928771973,
+    "compression_ratio": 3.7908199944741523,
+    "size_reduction_pct": 73.62048312877711
+  },
+  "latency_benchmark": {
+    "pytorch_fp32": {
+      "mean_ms": 13.397309789979772,
+      "throughput_fps": 74.64185091457155
+    },
+    "onnx_fp32": {
+      "mean_ms": 4.653094549976231,
+      "throughput_fps": 214.91074149892532,
+      "speedup_vs_pytorch": 2.8792257810553643
+    },
+    "onnx_int8": {
+      "mean_ms": 20.970189409999875,
+      "throughput_fps": 47.686741423667755,
+      "speedup_vs_pytorch": 0.638874047727538
+    }
+  },
+  "prediction_fidelity": {
+    "sample_size": 200,
+    "onnx_fp32": {
+      "top1_agreement_with_pytorch": 1.0,
+      "logit_mean_absolute_error": 6.819441750849364e-06
+    },
+    "onnx_int8": {
+      "top1_agreement_with_pytorch": 0.155,
+      "logit_mean_absolute_error": 5.285417556762695
+    }
+  },
+  "model_paths": {
+    "standard_fp32": "runs/export/efficientnet_b0.onnx",
+    "standard_int8": "runs/export/efficientnet_b0_int8.onnx",
+    "dual_fp32": "runs/export/efficientnet_b0_dual.onnx",
+    "dual_int8": "runs/export/efficientnet_b0_dual_int8.onnx"
+  }
+}

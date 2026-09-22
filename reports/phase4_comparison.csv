@@ -1,0 +1,4 @@
+Backbone,Loss,Params (M),Unfrozen,S1 Test F1,Final Test F1,Test Acc,NCD Recall,CPU Latency
+mobilenetv2_100,weighted_ce,2.23M,18.7%,0.7831,0.8497,88.09%,85.71%,10.8 ms
+efficientnet_b0,weighted_ce,4.01M,19.6%,0.7953,0.8714,89.41%,90.48%,15.6 ms
+resnet50,weighted_ce,23.52M,19.0%,0.8588,0.8604,89.33%,90.48%,64.9 ms

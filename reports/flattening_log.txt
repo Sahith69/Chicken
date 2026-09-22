@@ -1,0 +1,35 @@
+============================================================
+UPSTREAM DATASET FLATTENING AUDIT LOG
+============================================================
+Destination: /home/sahith/Projects/Chicken/data/raw
+
+Upstream Split: [TEST]
+  - Coccidiosis         :   248 images
+  - Healthy             :   241 images
+  - Newcastle Disease   :    29 images
+  - Salmonella          :   263 images
+  Total for test: 781 images
+
+Upstream Split: [TRAIN]
+  - Coccidiosis         :  1980 images
+  - Healthy             :  1923 images
+  - Newcastle Disease   :   505 images
+  - Salmonella          :  2100 images
+  Total for train: 6508 images
+
+Upstream Split: [VALIDATION]
+  - Coccidiosis         :   248 images
+  - Healthy             :   240 images
+  - Newcastle Disease   :    28 images
+  - Salmonella          :   262 images
+  Total for validation: 778 images
+
+------------------------------------------------------------
+FINAL POOLED CLASS TOTALS IN data/raw/:
+  - Coccidiosis         :  2476 images
+  - Healthy             :  2404 images
+  - Newcastle Disease   :   562 images
+  - Salmonella          :  2625 images
+------------------------------------------------------------
+GRAND TOTAL POOLED IMAGES: 8067
+============================================================

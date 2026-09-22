@@ -1,0 +1,258 @@
+{
+  "svm_full": {
+    "feature_slice": "SVM RBF (Full: Global + Center)",
+    "n_features": 410,
+    "overall_acc": 0.9528535980148883,
+    "overall_macro_f1": 0.9427746836098323,
+    "hard_acc": 0.9278074866310161,
+    "hard_macro_f1": 0.9102660409283261,
+    "macro_f1_delta": -0.03250864268150622,
+    "per_class": {
+      "Coccidiosis": {
+        "overall_n": 370,
+        "overall_recall": 0.972972972972973,
+        "overall_prec": 0.9651474530831099,
+        "overall_f1": 0.9690444140356743,
+        "hard_n": 114,
+        "hard_recall": 0.9298245614035088,
+        "hard_prec": 0.9137931034482759,
+        "hard_f1": 0.9217391299348203,
+        "recall_delta": -0.04314841156946425,
+        "is_small_sample": false
+      },
+      "Healthy": {
+        "overall_n": 361,
+        "overall_recall": 0.9390581717451524,
+        "overall_prec": 0.9338842975206612,
+        "overall_f1": 0.9364640878977939,
+        "hard_n": 54,
+        "hard_recall": 0.8148148148148148,
+        "hard_prec": 0.8148148148148148,
+        "hard_f1": 0.8148148143148147,
+        "recall_delta": -0.12424335693033761,
+        "is_small_sample": false
+      },
+      "Newcastle Disease": {
+        "overall_n": 84,
+        "overall_recall": 0.8809523809523809,
+        "overall_prec": 0.925,
+        "overall_f1": 0.9024390238905413,
+        "hard_n": 33,
+        "hard_recall": 0.9393939393939394,
+        "hard_prec": 0.9393939393939394,
+        "hard_f1": 0.9393939388939394,
+        "recall_delta": 0.05844155844155852,
+        "is_small_sample": false
+      },
+      "Salmonella": {
+        "overall_n": 394,
+        "overall_recall": 0.9619289340101523,
+        "overall_prec": 0.9643765903307888,
+        "overall_f1": 0.9631512066156298,
+        "hard_n": 173,
+        "hard_recall": 0.9595375722543352,
+        "hard_prec": 0.9707602339181286,
+        "hard_f1": 0.9651162785697842,
+        "recall_delta": -0.002391361755817112,
+        "is_small_sample": false
+      }
+    }
+  },
+  "svm_center_only": {
+    "feature_slice": "SVM RBF (Center-Only: 60% Core)",
+    "n_features": 205,
+    "overall_acc": 0.9354838709677419,
+    "overall_macro_f1": 0.9195211333807476,
+    "hard_acc": 0.8983957219251337,
+    "hard_macro_f1": 0.869005537138478,
+    "macro_f1_delta": -0.050515596242269645,
+    "per_class": {
+      "Coccidiosis": {
+        "overall_n": 370,
+        "overall_recall": 0.9567567567567568,
+        "overall_prec": 0.9389920424403183,
+        "overall_f1": 0.9477911641586785,
+        "hard_n": 114,
+        "hard_recall": 0.9122807017543859,
+        "hard_prec": 0.8524590163934426,
+        "hard_f1": 0.8813559317039643,
+        "recall_delta": -0.04447605500237084,
+        "is_small_sample": false
+      },
+      "Healthy": {
+        "overall_n": 361,
+        "overall_recall": 0.9390581717451524,
+        "overall_prec": 0.9137466307277629,
+        "overall_f1": 0.9262295076968147,
+        "hard_n": 54,
+        "hard_recall": 0.7962962962962963,
+        "hard_prec": 0.7818181818181819,
+        "hard_f1": 0.7889908251881155,
+        "recall_delta": -0.1427618754488561,
+        "is_small_sample": false
+      },
+      "Newcastle Disease": {
+        "overall_n": 84,
+        "overall_recall": 0.8095238095238095,
+        "overall_prec": 0.9066666666666666,
+        "overall_f1": 0.8553459114512876,
+        "hard_n": 33,
+        "hard_recall": 0.7878787878787878,
+        "hard_prec": 0.9285714285714286,
+        "hard_f1": 0.8524590158968018,
+        "recall_delta": -0.02164502164502169,
+        "is_small_sample": false
+      },
+      "Salmonella": {
+        "overall_n": 394,
+        "overall_recall": 0.9390862944162437,
+        "overall_prec": 0.9585492227979274,
+        "overall_f1": 0.9487179482180012,
+        "hard_n": 173,
+        "hard_recall": 0.9421965317919075,
+        "hard_prec": 0.9644970414201184,
+        "hard_f1": 0.9532163737690742,
+        "recall_delta": 0.003110237375663849,
+        "is_small_sample": false
+      }
+    }
+  },
+  "xgb_center_only": {
+    "feature_slice": "XGBoost (Center-Only: 60% Core)",
+    "n_features": 205,
+    "overall_acc": 0.9296939619520265,
+    "overall_macro_f1": 0.9030383066243074,
+    "hard_acc": 0.8877005347593583,
+    "hard_macro_f1": 0.8400904602535747,
+    "macro_f1_delta": -0.0629478463707327,
+    "per_class": {
+      "Coccidiosis": {
+        "overall_n": 370,
+        "overall_recall": 0.9486486486486486,
+        "overall_prec": 0.9538043478260869,
+        "overall_f1": 0.9512195116951256,
+        "hard_n": 114,
+        "hard_recall": 0.8947368421052632,
+        "hard_prec": 0.8793103448275862,
+        "hard_f1": 0.8869565212391681,
+        "recall_delta": -0.053911806543385454,
+        "is_small_sample": false
+      },
+      "Healthy": {
+        "overall_n": 361,
+        "overall_recall": 0.9279778393351801,
+        "overall_prec": 0.9103260869565217,
+        "overall_f1": 0.9190672148635578,
+        "hard_n": 54,
+        "hard_recall": 0.7592592592592593,
+        "hard_prec": 0.7321428571428571,
+        "hard_f1": 0.7454545449547108,
+        "recall_delta": -0.16871858007592078,
+        "is_small_sample": false
+      },
+      "Newcastle Disease": {
+        "overall_n": 84,
+        "overall_recall": 0.7619047619047619,
+        "overall_prec": 0.8311688311688312,
+        "overall_f1": 0.7950310554015663,
+        "hard_n": 33,
+        "hard_recall": 0.7272727272727273,
+        "hard_prec": 0.8275862068965517,
+        "hard_f1": 0.7741935478891779,
+        "recall_delta": -0.03463203463203457,
+        "is_small_sample": false
+      },
+      "Salmonella": {
+        "overall_n": 394,
+        "overall_recall": 0.949238578680203,
+        "overall_prec": 0.9444444444444444,
+        "overall_f1": 0.9468354425379778,
+        "hard_n": 173,
+        "hard_recall": 0.953757225433526,
+        "hard_prec": 0.953757225433526,
+        "hard_f1": 0.953757224933526,
+        "recall_delta": 0.00451864675332303,
+        "is_small_sample": false
+      }
+    }
+  },
+  "grouped_cv_center_svm_f1": 0.9063108147280088,
+  "grouped_cv_center_svm_std": 0.009014515471845343,
+  "top_shap_center_only": [
+    {
+      "feature": "center_lab_b_bin10",
+      "mean_abs_shap": 0.5223198533058167,
+      "rank": 1
+    },
+    {
+      "feature": "center_lab_b_std",
+      "mean_abs_shap": 0.3521191477775574,
+      "rank": 2
+    },
+    {
+      "feature": "center_rgb_r_bin15",
+      "mean_abs_shap": 0.3161419630050659,
+      "rank": 3
+    },
+    {
+      "feature": "center_lab_a_skew",
+      "mean_abs_shap": 0.2914375960826874,
+      "rank": 4
+    },
+    {
+      "feature": "center_lab_b_skew",
+      "mean_abs_shap": 0.2737491726875305,
+      "rank": 5
+    },
+    {
+      "feature": "center_rgb_b_bin15",
+      "mean_abs_shap": 0.27305158972740173,
+      "rank": 6
+    },
+    {
+      "feature": "center_hsv_h_bin2",
+      "mean_abs_shap": 0.2464708387851715,
+      "rank": 7
+    },
+    {
+      "feature": "center_lab_b_bin6",
+      "mean_abs_shap": 0.2275373786687851,
+      "rank": 8
+    },
+    {
+      "feature": "center_lab_a_std",
+      "mean_abs_shap": 0.22002388536930084,
+      "rank": 9
+    },
+    {
+      "feature": "center_lbp_bin6",
+      "mean_abs_shap": 0.18165025115013123,
+      "rank": 10
+    },
+    {
+      "feature": "center_hsv_h_bin0",
+      "mean_abs_shap": 0.1445518136024475,
+      "rank": 11
+    },
+    {
+      "feature": "center_lab_a_mean",
+      "mean_abs_shap": 0.1344567984342575,
+      "rank": 12
+    },
+    {
+      "feature": "center_hsv_h_bin3",
+      "mean_abs_shap": 0.12408538907766342,
+      "rank": 13
+    },
+    {
+      "feature": "center_glcm_homogeneity_std",
+      "mean_abs_shap": 0.098943330347538,
+      "rank": 14
+    },
+    {
+      "feature": "center_lab_b_bin9",
+      "mean_abs_shap": 0.09815654158592224,
+      "rank": 15
+    }
+  ]
+}

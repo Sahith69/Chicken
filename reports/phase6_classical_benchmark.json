@@ -1,0 +1,313 @@
+{
+  "dataset": {
+    "n_features": 410,
+    "train_samples": 5649,
+    "test_samples": 1209
+  },
+  "grouped_cv": {
+    "RandomForest": {
+      "mean_macro_f1": 0.8875150102483292,
+      "std_macro_f1": 0.008470648286254219,
+      "mean_accuracy": 0.922287089365638,
+      "std_accuracy": 0.006141822932911625,
+      "fold_f1s": [
+        0.8906825270568358,
+        0.8962429177163895,
+        0.895038973260087,
+        0.8815055571176089,
+        0.8741050760907246
+      ]
+    },
+    "XGBoost": {
+      "mean_macro_f1": 0.9280660596534721,
+      "std_macro_f1": 0.010283901684047796,
+      "mean_accuracy": 0.945830988344294,
+      "std_accuracy": 0.003470341947840047,
+      "fold_f1s": [
+        0.9427158833618161,
+        0.9212036899620909,
+        0.9372335616582994,
+        0.9240217157997015,
+        0.9151554474854525
+      ]
+    },
+    "SVM_RBF": {
+      "mean_macro_f1": 0.9257824133273935,
+      "std_macro_f1": 0.007155873474349915,
+      "mean_accuracy": 0.9428210414102856,
+      "std_accuracy": 0.003991941314732541,
+      "fold_f1s": [
+        0.9333841555094664,
+        0.9270258761883035,
+        0.9321774843245711,
+        0.9226159256004031,
+        0.9137086250142239
+      ]
+    }
+  },
+  "test_results": {
+    "RandomForest": {
+      "accuracy": 0.9214226633581473,
+      "macro_f1": 0.8874003195308746,
+      "fit_time_sec": 1.493863821029663,
+      "model_size_mb": 13.021004676818848,
+      "classifier_latency_ms": 0.045286514622993566,
+      "checkpoint_path": "runs/classical/randomforest.joblib",
+      "per_class": {
+        "Coccidiosis": {
+          "precision": 0.9438502673796791,
+          "recall": 0.9540540540540541,
+          "f1": 0.9489247311827957,
+          "support": 370
+        },
+        "Healthy": {
+          "precision": 0.8957219251336899,
+          "recall": 0.9279778393351801,
+          "f1": 0.9115646258503401,
+          "support": 361
+        },
+        "Newcastle Disease": {
+          "precision": 0.8870967741935484,
+          "recall": 0.6547619047619048,
+          "f1": 0.7534246575342466,
+          "support": 84
+        },
+        "Salmonella": {
+          "precision": 0.9298245614035088,
+          "recall": 0.9416243654822335,
+          "f1": 0.935687263556116,
+          "support": 394
+        }
+      },
+      "confusion_matrix": [
+        [
+          353,
+          9,
+          0,
+          8
+        ],
+        [
+          7,
+          335,
+          5,
+          14
+        ],
+        [
+          8,
+          15,
+          55,
+          6
+        ],
+        [
+          6,
+          15,
+          2,
+          371
+        ]
+      ]
+    },
+    "XGBoost": {
+      "accuracy": 0.9412737799834574,
+      "macro_f1": 0.9230915959927625,
+      "fit_time_sec": 21.392146110534668,
+      "model_size_mb": 1.7209291458129883,
+      "classifier_latency_ms": 0.013907553244465338,
+      "checkpoint_path": "runs/classical/xgboost.joblib",
+      "per_class": {
+        "Coccidiosis": {
+          "precision": 0.9490616621983914,
+          "recall": 0.9567567567567568,
+          "f1": 0.9528936742934051,
+          "support": 370
+        },
+        "Healthy": {
+          "precision": 0.9361111111111111,
+          "recall": 0.9335180055401662,
+          "f1": 0.9348127600554785,
+          "support": 361
+        },
+        "Newcastle Disease": {
+          "precision": 0.8947368421052632,
+          "recall": 0.8095238095238095,
+          "f1": 0.85,
+          "support": 84
+        },
+        "Salmonella": {
+          "precision": 0.9475,
+          "recall": 0.9619289340101523,
+          "f1": 0.9546599496221663,
+          "support": 394
+        }
+      },
+      "confusion_matrix": [
+        [
+          354,
+          8,
+          1,
+          7
+        ],
+        [
+          7,
+          337,
+          7,
+          10
+        ],
+        [
+          6,
+          6,
+          68,
+          4
+        ],
+        [
+          6,
+          9,
+          0,
+          379
+        ]
+      ]
+    },
+    "SVM_RBF": {
+      "accuracy": 0.9528535980148883,
+      "macro_f1": 0.9427746836098323,
+      "fit_time_sec": 1.1304562091827393,
+      "model_size_mb": 5.311598777770996,
+      "classifier_latency_ms": 0.22125263860937583,
+      "checkpoint_path": "runs/classical/svm_rbf.joblib",
+      "per_class": {
+        "Coccidiosis": {
+          "precision": 0.9651474530831099,
+          "recall": 0.972972972972973,
+          "f1": 0.9690444145356663,
+          "support": 370
+        },
+        "Healthy": {
+          "precision": 0.9338842975206612,
+          "recall": 0.9390581717451524,
+          "f1": 0.93646408839779,
+          "support": 361
+        },
+        "Newcastle Disease": {
+          "precision": 0.925,
+          "recall": 0.8809523809523809,
+          "f1": 0.9024390243902439,
+          "support": 84
+        },
+        "Salmonella": {
+          "precision": 0.9643765903307888,
+          "recall": 0.9619289340101523,
+          "f1": 0.963151207115629,
+          "support": 394
+        }
+      },
+      "confusion_matrix": [
+        [
+          360,
+          7,
+          0,
+          3
+        ],
+        [
+          7,
+          339,
+          6,
+          9
+        ],
+        [
+          2,
+          6,
+          74,
+          2
+        ],
+        [
+          4,
+          11,
+          0,
+          379
+        ]
+      ]
+    }
+  },
+  "feature_selection_ablation": {
+    "pca_95_components": 62,
+    "pca_test_acc": 0.946236559139785,
+    "pca_test_macro_f1": 0.9320140916499573
+  },
+  "end_to_end_latency_ms": 20.75221538543701,
+  "top_shap_features": [
+    {
+      "feature": "center_lab_b_bin10",
+      "mean_abs_shap": 0.4397774934768677,
+      "rank": 1
+    },
+    {
+      "feature": "global_lab_b_skew",
+      "mean_abs_shap": 0.31732261180877686,
+      "rank": 2
+    },
+    {
+      "feature": "center_rgb_r_bin15",
+      "mean_abs_shap": 0.29309913516044617,
+      "rank": 3
+    },
+    {
+      "feature": "center_lab_b_std",
+      "mean_abs_shap": 0.283923864364624,
+      "rank": 4
+    },
+    {
+      "feature": "center_lab_a_skew",
+      "mean_abs_shap": 0.2679276764392853,
+      "rank": 5
+    },
+    {
+      "feature": "center_hsv_h_bin2",
+      "mean_abs_shap": 0.23649179935455322,
+      "rank": 6
+    },
+    {
+      "feature": "center_rgb_b_bin15",
+      "mean_abs_shap": 0.21895386278629303,
+      "rank": 7
+    },
+    {
+      "feature": "global_lab_b_bin6",
+      "mean_abs_shap": 0.19643022119998932,
+      "rank": 8
+    },
+    {
+      "feature": "global_lbp_bin6",
+      "mean_abs_shap": 0.17868800461292267,
+      "rank": 9
+    },
+    {
+      "feature": "center_hsv_h_bin3",
+      "mean_abs_shap": 0.1274815797805786,
+      "rank": 10
+    },
+    {
+      "feature": "center_lab_a_std",
+      "mean_abs_shap": 0.10213536024093628,
+      "rank": 11
+    },
+    {
+      "feature": "global_glcm_homogeneity_std",
+      "mean_abs_shap": 0.095668725669384,
+      "rank": 12
+    },
+    {
+      "feature": "global_lab_a_std",
+      "mean_abs_shap": 0.08753030747175217,
+      "rank": 13
+    },
+    {
+      "feature": "global_hsv_h_bin0",
+      "mean_abs_shap": 0.08454898744821548,
+      "rank": 14
+    },
+    {
+      "feature": "global_lab_b_mean",
+      "mean_abs_shap": 0.08085881173610687,
+      "rank": 15
+    }
+  ]
+}

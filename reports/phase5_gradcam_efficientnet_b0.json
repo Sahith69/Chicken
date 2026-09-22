@@ -1,0 +1,199 @@
+{
+  "backbone": "efficientnet_b0",
+  "target_layer": "Conv2d",
+  "n_samples": 24,
+  "overlays": [
+    {
+      "image_path": "data/raw/Coccidiosis/cocci.1002.jpg",
+      "overlay_path": "/home/sahith/Projects/Chicken/reports/figures/gradcam/coccidiosis_correct_cocci.1002.png",
+      "true_class": "Coccidiosis",
+      "pred_class": "Coccidiosis",
+      "confidence": 1.0,
+      "category": "correct"
+    },
+    {
+      "image_path": "data/raw/Coccidiosis/cocci.1241.jpg",
+      "overlay_path": "/home/sahith/Projects/Chicken/reports/figures/gradcam/coccidiosis_correct_cocci.1241.png",
+      "true_class": "Coccidiosis",
+      "pred_class": "Coccidiosis",
+      "confidence": 1.0,
+      "category": "correct"
+    },
+    {
+      "image_path": "data/raw/Coccidiosis/cocci.1234.jpg",
+      "overlay_path": "/home/sahith/Projects/Chicken/reports/figures/gradcam/coccidiosis_correct_cocci.1234.png",
+      "true_class": "Coccidiosis",
+      "pred_class": "Coccidiosis",
+      "confidence": 1.0,
+      "category": "correct"
+    },
+    {
+      "image_path": "data/raw/Coccidiosis/pcrcocci.349.jpg",
+      "overlay_path": "/home/sahith/Projects/Chicken/reports/figures/gradcam/coccidiosis_incorrect_pcrcocci.349.png",
+      "true_class": "Coccidiosis",
+      "pred_class": "Healthy",
+      "confidence": 0.9998012185096741,
+      "category": "incorrect"
+    },
+    {
+      "image_path": "data/raw/Coccidiosis/pcrcocci.163.jpg",
+      "overlay_path": "/home/sahith/Projects/Chicken/reports/figures/gradcam/coccidiosis_incorrect_pcrcocci.163.png",
+      "true_class": "Coccidiosis",
+      "pred_class": "Newcastle Disease",
+      "confidence": 0.9994410872459412,
+      "category": "incorrect"
+    },
+    {
+      "image_path": "data/raw/Coccidiosis/pcrcocci.107.jpg",
+      "overlay_path": "/home/sahith/Projects/Chicken/reports/figures/gradcam/coccidiosis_incorrect_pcrcocci.107.png",
+      "true_class": "Coccidiosis",
+      "pred_class": "Healthy",
+      "confidence": 0.9991084933280945,
+      "category": "incorrect"
+    },
+    {
+      "image_path": "data/raw/Healthy/healthy.405.jpg",
+      "overlay_path": "/home/sahith/Projects/Chicken/reports/figures/gradcam/healthy_correct_healthy.405.png",
+      "true_class": "Healthy",
+      "pred_class": "Healthy",
+      "confidence": 1.0,
+      "category": "correct"
+    },
+    {
+      "image_path": "data/raw/Healthy/healthy.1957.jpg",
+      "overlay_path": "/home/sahith/Projects/Chicken/reports/figures/gradcam/healthy_correct_healthy.1957.png",
+      "true_class": "Healthy",
+      "pred_class": "Healthy",
+      "confidence": 1.0,
+      "category": "correct"
+    },
+    {
+      "image_path": "data/raw/Healthy/healthy.333.jpg",
+      "overlay_path": "/home/sahith/Projects/Chicken/reports/figures/gradcam/healthy_correct_healthy.333.png",
+      "true_class": "Healthy",
+      "pred_class": "Healthy",
+      "confidence": 0.9999997615814209,
+      "category": "correct"
+    },
+    {
+      "image_path": "data/raw/Healthy/pcrhealthy.157.jpg",
+      "overlay_path": "/home/sahith/Projects/Chicken/reports/figures/gradcam/healthy_incorrect_pcrhealthy.157.png",
+      "true_class": "Healthy",
+      "pred_class": "Salmonella",
+      "confidence": 0.9999881982803345,
+      "category": "incorrect"
+    },
+    {
+      "image_path": "data/raw/Healthy/pcrhealthy.30.jpg",
+      "overlay_path": "/home/sahith/Projects/Chicken/reports/figures/gradcam/healthy_incorrect_pcrhealthy.30.png",
+      "true_class": "Healthy",
+      "pred_class": "Salmonella",
+      "confidence": 0.9996320009231567,
+      "category": "incorrect"
+    },
+    {
+      "image_path": "data/raw/Healthy/pcrhealthy.206.jpg",
+      "overlay_path": "/home/sahith/Projects/Chicken/reports/figures/gradcam/healthy_incorrect_pcrhealthy.206.png",
+      "true_class": "Healthy",
+      "pred_class": "Coccidiosis",
+      "confidence": 0.9989068508148193,
+      "category": "incorrect"
+    },
+    {
+      "image_path": "data/raw/Newcastle Disease/pcrncd.147.jpg",
+      "overlay_path": "/home/sahith/Projects/Chicken/reports/figures/gradcam/newcastle_disease_correct_pcrncd.147.png",
+      "true_class": "Newcastle Disease",
+      "pred_class": "Newcastle Disease",
+      "confidence": 0.9999998807907104,
+      "category": "correct"
+    },
+    {
+      "image_path": "data/raw/Newcastle Disease/pcrncd.81.jpg",
+      "overlay_path": "/home/sahith/Projects/Chicken/reports/figures/gradcam/newcastle_disease_correct_pcrncd.81.png",
+      "true_class": "Newcastle Disease",
+      "pred_class": "Newcastle Disease",
+      "confidence": 0.9999992847442627,
+      "category": "correct"
+    },
+    {
+      "image_path": "data/raw/Newcastle Disease/pcrncd.72.jpg",
+      "overlay_path": "/home/sahith/Projects/Chicken/reports/figures/gradcam/newcastle_disease_correct_pcrncd.72.png",
+      "true_class": "Newcastle Disease",
+      "pred_class": "Newcastle Disease",
+      "confidence": 0.9999990463256836,
+      "category": "correct"
+    },
+    {
+      "image_path": "data/raw/Newcastle Disease/ncd.258.jpg",
+      "overlay_path": "/home/sahith/Projects/Chicken/reports/figures/gradcam/newcastle_disease_incorrect_ncd.258.png",
+      "true_class": "Newcastle Disease",
+      "pred_class": "Healthy",
+      "confidence": 0.9948623776435852,
+      "category": "incorrect"
+    },
+    {
+      "image_path": "data/raw/Newcastle Disease/pcrncd.7.jpg",
+      "overlay_path": "/home/sahith/Projects/Chicken/reports/figures/gradcam/newcastle_disease_incorrect_pcrncd.7.png",
+      "true_class": "Newcastle Disease",
+      "pred_class": "Healthy",
+      "confidence": 0.9863293766975403,
+      "category": "incorrect"
+    },
+    {
+      "image_path": "data/raw/Newcastle Disease/ncd.104.jpg",
+      "overlay_path": "/home/sahith/Projects/Chicken/reports/figures/gradcam/newcastle_disease_incorrect_ncd.104.png",
+      "true_class": "Newcastle Disease",
+      "pred_class": "Healthy",
+      "confidence": 0.9348596930503845,
+      "category": "incorrect"
+    },
+    {
+      "image_path": "data/raw/Salmonella/salmo.809.jpg",
+      "overlay_path": "/home/sahith/Projects/Chicken/reports/figures/gradcam/salmonella_correct_salmo.809.png",
+      "true_class": "Salmonella",
+      "pred_class": "Salmonella",
+      "confidence": 1.0,
+      "category": "correct"
+    },
+    {
+      "image_path": "data/raw/Salmonella/salmo.1919.jpg",
+      "overlay_path": "/home/sahith/Projects/Chicken/reports/figures/gradcam/salmonella_correct_salmo.1919.png",
+      "true_class": "Salmonella",
+      "pred_class": "Salmonella",
+      "confidence": 1.0,
+      "category": "correct"
+    },
+    {
+      "image_path": "data/raw/Salmonella/salmo.1559.jpg",
+      "overlay_path": "/home/sahith/Projects/Chicken/reports/figures/gradcam/salmonella_correct_salmo.1559.png",
+      "true_class": "Salmonella",
+      "pred_class": "Salmonella",
+      "confidence": 1.0,
+      "category": "correct"
+    },
+    {
+      "image_path": "data/raw/Salmonella/salmo.1182.jpg",
+      "overlay_path": "/home/sahith/Projects/Chicken/reports/figures/gradcam/salmonella_incorrect_salmo.1182.png",
+      "true_class": "Salmonella",
+      "pred_class": "Healthy",
+      "confidence": 0.9997093081474304,
+      "category": "incorrect"
+    },
+    {
+      "image_path": "data/raw/Salmonella/salmo.636.jpg",
+      "overlay_path": "/home/sahith/Projects/Chicken/reports/figures/gradcam/salmonella_incorrect_salmo.636.png",
+      "true_class": "Salmonella",
+      "pred_class": "Healthy",
+      "confidence": 0.9991439580917358,
+      "category": "incorrect"
+    },
+    {
+      "image_path": "data/raw/Salmonella/salmo.1583.jpg",
+      "overlay_path": "/home/sahith/Projects/Chicken/reports/figures/gradcam/salmonella_incorrect_salmo.1583.png",
+      "true_class": "Salmonella",
+      "pred_class": "Healthy",
+      "confidence": 0.9974083304405212,
+      "category": "incorrect"
+    }
+  ]
+}

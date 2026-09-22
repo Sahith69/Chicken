@@ -1,0 +1,39 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+.venv/
+env/
+venv/
+ENV/
+
+# Pyenv
+.python-version
+
+# Data and large artifacts
+data/raw/*
+!data/raw/.gitkeep
+data/splits/*
+!data/splits/.gitkeep
+runs/*
+!runs/.gitkeep
+
+# Model weights and exports
+*.pth
+*.pt
+*.onnx
+
+# OS and IDE files
+.DS_Store
+.vscode/
+.idea/
+
+# Reports generated figures
+reports/figures/*
+!reports/figures/.gitkeep
+
+# Temporary application artifacts
+app/temp_input.jpg
+*.tmp

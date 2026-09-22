@@ -1,0 +1,316 @@
+{
+  "overall": {
+    "n": 1209,
+    "accuracy": 0.8941273779983457,
+    "macro_f1": 0.8714376545199868
+  },
+  "hard_subset": {
+    "n": 374,
+    "pct_of_test": 0.3093465674110835,
+    "accuracy": 0.8689839572192514,
+    "macro_f1": 0.8204408066603188,
+    "mean_central_energy": 0.5279856063425541
+  },
+  "per_class": {
+    "Coccidiosis": {
+      "overall_n": 370,
+      "overall_recall": 0.927027027027027,
+      "overall_precision": 0.9501385041551247,
+      "overall_f1": 0.9384404919761359,
+      "hard_n": 114,
+      "hard_recall": 0.9035087719298246,
+      "hard_precision": 0.9279279279279279,
+      "hard_f1": 0.9155555550556445,
+      "recall_delta": -0.0235182550972024,
+      "is_indicative_only": false,
+      "cluster_breakdown": {
+        "1": {
+          "cluster_name": "Cluster 1 (Light wood shavings)",
+          "n": 48,
+          "recall": 0.8958333333333334,
+          "is_small_sample": false
+        },
+        "3": {
+          "cluster_name": "Cluster 3 (Mixed straw / pen floor)",
+          "n": 66,
+          "recall": 0.9090909090909091,
+          "is_small_sample": false
+        }
+      }
+    },
+    "Healthy": {
+      "overall_n": 361,
+      "overall_recall": 0.8614958448753463,
+      "overall_precision": 0.8785310734463276,
+      "overall_f1": 0.8699300694301179,
+      "hard_n": 54,
+      "hard_recall": 0.6851851851851852,
+      "hard_precision": 0.6851851851851852,
+      "hard_f1": 0.6851851846851852,
+      "recall_delta": -0.17631065969016102,
+      "is_indicative_only": false,
+      "cluster_breakdown": {
+        "0": {
+          "cluster_name": "Cluster 0 (Dark soil / concrete)",
+          "n": 4,
+          "recall": 0.75,
+          "is_small_sample": true
+        },
+        "2": {
+          "cluster_name": "Cluster 2 (Reddish-brown litter)",
+          "n": 9,
+          "recall": 0.6666666666666666,
+          "is_small_sample": true
+        },
+        "3": {
+          "cluster_name": "Cluster 3 (Mixed straw / pen floor)",
+          "n": 41,
+          "recall": 0.6829268292682927,
+          "is_small_sample": false
+        }
+      }
+    },
+    "Newcastle Disease": {
+      "overall_n": 84,
+      "overall_recall": 0.9047619047619048,
+      "overall_precision": 0.672566371681416,
+      "overall_f1": 0.7715736035717488,
+      "hard_n": 33,
+      "hard_recall": 0.9393939393939394,
+      "hard_precision": 0.6326530612244898,
+      "hard_f1": 0.756097560494646,
+      "recall_delta": 0.03463203463203468,
+      "is_indicative_only": false,
+      "cluster_breakdown": {
+        "0": {
+          "cluster_name": "Cluster 0 (Dark soil / concrete)",
+          "n": 11,
+          "recall": 0.8181818181818182,
+          "is_small_sample": true
+        },
+        "2": {
+          "cluster_name": "Cluster 2 (Reddish-brown litter)",
+          "n": 9,
+          "recall": 1.0,
+          "is_small_sample": true
+        },
+        "3": {
+          "cluster_name": "Cluster 3 (Mixed straw / pen floor)",
+          "n": 13,
+          "recall": 1.0,
+          "is_small_sample": true
+        }
+      }
+    },
+    "Salmonella": {
+      "overall_n": 394,
+      "overall_recall": 0.8908629441624365,
+      "overall_precision": 0.9212598425196851,
+      "overall_f1": 0.9058064511130438,
+      "hard_n": 173,
+      "hard_recall": 0.8901734104046243,
+      "hard_precision": 0.9625,
+      "hard_f1": 0.924924924425687,
+      "recall_delta": -0.0006895337578122218,
+      "is_indicative_only": false,
+      "cluster_breakdown": {
+        "0": {
+          "cluster_name": "Cluster 0 (Dark soil / concrete)",
+          "n": 45,
+          "recall": 0.9333333333333333,
+          "is_small_sample": false
+        },
+        "2": {
+          "cluster_name": "Cluster 2 (Reddish-brown litter)",
+          "n": 41,
+          "recall": 0.8292682926829268,
+          "is_small_sample": false
+        },
+        "3": {
+          "cluster_name": "Cluster 3 (Mixed straw / pen floor)",
+          "n": 87,
+          "recall": 0.896551724137931,
+          "is_small_sample": false
+        }
+      }
+    }
+  },
+  "exemplars": [
+    {
+      "filepath": "data/raw/Coccidiosis/cocci.1061.jpg",
+      "filename": "hard_coccidiosis_correct_cocci.1061.png",
+      "label": "Coccidiosis",
+      "pred": "Coccidiosis",
+      "conf": 0.9999995231628418,
+      "is_correct": true,
+      "substrate_cluster": 3,
+      "substrate_name": "Cluster 3 (Mixed straw / pen floor)",
+      "central_energy": 0.5798149704933167
+    },
+    {
+      "filepath": "data/raw/Coccidiosis/cocci.1067.jpg",
+      "filename": "hard_coccidiosis_correct_cocci.1067.png",
+      "label": "Coccidiosis",
+      "pred": "Coccidiosis",
+      "conf": 0.9987103939056396,
+      "is_correct": true,
+      "substrate_cluster": 3,
+      "substrate_name": "Cluster 3 (Mixed straw / pen floor)",
+      "central_energy": 0.7028555274009705
+    },
+    {
+      "filepath": "data/raw/Coccidiosis/cocci.1266.jpg",
+      "filename": "hard_coccidiosis_incorrect_cocci.1266.png",
+      "label": "Coccidiosis",
+      "pred": "Newcastle Disease",
+      "conf": 0.40200644731521606,
+      "is_correct": false,
+      "substrate_cluster": 3,
+      "substrate_name": "Cluster 3 (Mixed straw / pen floor)",
+      "central_energy": 0.40667352080345154
+    },
+    {
+      "filepath": "data/raw/Coccidiosis/pcrcocci.104.jpg",
+      "filename": "hard_coccidiosis_incorrect_pcrcocci.104.png",
+      "label": "Coccidiosis",
+      "pred": "Healthy",
+      "conf": 0.7772113084793091,
+      "is_correct": false,
+      "substrate_cluster": 3,
+      "substrate_name": "Cluster 3 (Mixed straw / pen floor)",
+      "central_energy": 0.5869936943054199
+    },
+    {
+      "filepath": "data/raw/Healthy/healthy.1098.jpg",
+      "filename": "hard_healthy_correct_healthy.1098.png",
+      "label": "Healthy",
+      "pred": "Healthy",
+      "conf": 0.9909263849258423,
+      "is_correct": true,
+      "substrate_cluster": 0,
+      "substrate_name": "Cluster 0 (Dark soil / concrete)",
+      "central_energy": 0.5085594654083252
+    },
+    {
+      "filepath": "data/raw/Healthy/healthy.1102.jpg",
+      "filename": "hard_healthy_correct_healthy.1102.png",
+      "label": "Healthy",
+      "pred": "Healthy",
+      "conf": 0.998076319694519,
+      "is_correct": true,
+      "substrate_cluster": 3,
+      "substrate_name": "Cluster 3 (Mixed straw / pen floor)",
+      "central_energy": 0.5692639350891113
+    },
+    {
+      "filepath": "data/raw/Healthy/healthy.1090.jpg",
+      "filename": "hard_healthy_incorrect_healthy.1090.png",
+      "label": "Healthy",
+      "pred": "Newcastle Disease",
+      "conf": 0.900288462638855,
+      "is_correct": false,
+      "substrate_cluster": 3,
+      "substrate_name": "Cluster 3 (Mixed straw / pen floor)",
+      "central_energy": 0.5182028412818909
+    },
+    {
+      "filepath": "data/raw/Healthy/healthy.11.jpg",
+      "filename": "hard_healthy_incorrect_healthy.11.png",
+      "label": "Healthy",
+      "pred": "Newcastle Disease",
+      "conf": 0.5051351189613342,
+      "is_correct": false,
+      "substrate_cluster": 3,
+      "substrate_name": "Cluster 3 (Mixed straw / pen floor)",
+      "central_energy": 0.43170204758644104
+    },
+    {
+      "filepath": "data/raw/Newcastle Disease/ncd.100.jpg",
+      "filename": "hard_newcastle_disease_correct_ncd.100.png",
+      "label": "Newcastle Disease",
+      "pred": "Newcastle Disease",
+      "conf": 0.9928234815597534,
+      "is_correct": true,
+      "substrate_cluster": 3,
+      "substrate_name": "Cluster 3 (Mixed straw / pen floor)",
+      "central_energy": 0.4728807210922241
+    },
+    {
+      "filepath": "data/raw/Newcastle Disease/ncd.106.jpg",
+      "filename": "hard_newcastle_disease_correct_ncd.106.png",
+      "label": "Newcastle Disease",
+      "pred": "Newcastle Disease",
+      "conf": 0.9993516802787781,
+      "is_correct": true,
+      "substrate_cluster": 0,
+      "substrate_name": "Cluster 0 (Dark soil / concrete)",
+      "central_energy": 0.5636837482452393
+    },
+    {
+      "filepath": "data/raw/Newcastle Disease/ncd.356.jpg",
+      "filename": "hard_newcastle_disease_incorrect_ncd.356.png",
+      "label": "Newcastle Disease",
+      "pred": "Healthy",
+      "conf": 0.42330387234687805,
+      "is_correct": false,
+      "substrate_cluster": 0,
+      "substrate_name": "Cluster 0 (Dark soil / concrete)",
+      "central_energy": 0.40810176730155945
+    },
+    {
+      "filepath": "data/raw/Newcastle Disease/ncd.368.jpg",
+      "filename": "hard_newcastle_disease_incorrect_ncd.368.png",
+      "label": "Newcastle Disease",
+      "pred": "Coccidiosis",
+      "conf": 0.779021680355072,
+      "is_correct": false,
+      "substrate_cluster": 0,
+      "substrate_name": "Cluster 0 (Dark soil / concrete)",
+      "central_energy": 0.7179667949676514
+    },
+    {
+      "filepath": "data/raw/Salmonella/pcrsalmo.118.jpg",
+      "filename": "hard_salmonella_correct_pcrsalmo.118.png",
+      "label": "Salmonella",
+      "pred": "Salmonella",
+      "conf": 0.9857829809188843,
+      "is_correct": true,
+      "substrate_cluster": 0,
+      "substrate_name": "Cluster 0 (Dark soil / concrete)",
+      "central_energy": 0.530502438545227
+    },
+    {
+      "filepath": "data/raw/Salmonella/pcrsalmo.123.jpg",
+      "filename": "hard_salmonella_correct_pcrsalmo.123.png",
+      "label": "Salmonella",
+      "pred": "Salmonella",
+      "conf": 0.9071504473686218,
+      "is_correct": true,
+      "substrate_cluster": 0,
+      "substrate_name": "Cluster 0 (Dark soil / concrete)",
+      "central_energy": 0.5613536834716797
+    },
+    {
+      "filepath": "data/raw/Salmonella/pcrsalmo.188.jpg",
+      "filename": "hard_salmonella_incorrect_pcrsalmo.188.png",
+      "label": "Salmonella",
+      "pred": "Newcastle Disease",
+      "conf": 0.6049386262893677,
+      "is_correct": false,
+      "substrate_cluster": 3,
+      "substrate_name": "Cluster 3 (Mixed straw / pen floor)",
+      "central_energy": 0.7176382541656494
+    },
+    {
+      "filepath": "data/raw/Salmonella/pcrsalmo.242.jpg",
+      "filename": "hard_salmonella_incorrect_pcrsalmo.242.png",
+      "label": "Salmonella",
+      "pred": "Healthy",
+      "conf": 0.6389979720115662,
+      "is_correct": false,
+      "substrate_cluster": 3,
+      "substrate_name": "Cluster 3 (Mixed straw / pen floor)",
+      "central_energy": 0.17157629132270813
+    }
+  ]
+}

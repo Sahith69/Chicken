@@ -1,0 +1,90 @@
+[
+  {
+    "id": "cocci_01",
+    "name": "Coccidiosis (Bloody Mucus, Wood Shavings)",
+    "category": "Coccidiosis",
+    "is_ood": false,
+    "filename": "cocci_01_cocci.1002.jpg",
+    "description": "Characteristic frank crimson blood and mucosal shedding on wood shavings bedding."
+  },
+  {
+    "id": "cocci_02",
+    "name": "Coccidiosis (Mucoid Red Core, Straw Floor)",
+    "category": "Coccidiosis",
+    "is_ood": false,
+    "filename": "cocci_02_cocci.1067.jpg",
+    "description": "Mucoid hemorrhage on pen straw (Phase 5 hard minority subset sample)."
+  },
+  {
+    "id": "healthy_01",
+    "name": "Healthy (Normal Cecal Dropping, Wood Shavings)",
+    "category": "Healthy",
+    "is_ood": false,
+    "filename": "healthy_01_healthy.1000.jpg",
+    "description": "Typical normal brown stool capped with white uric acid on wood shavings."
+  },
+  {
+    "id": "healthy_02",
+    "name": "Healthy (Normal Dropping, Mixed Soil Bedding)",
+    "category": "Healthy",
+    "is_ood": false,
+    "filename": "healthy_02_healthy.1037.jpg",
+    "description": "Normal dropping on darker bedding \u2014 surfaces the substrate confounder limitation."
+  },
+  {
+    "id": "newcastle_01",
+    "name": "Newcastle Disease (Emerald Green Watery Diarrhea)",
+    "category": "Newcastle Disease",
+    "is_ood": false,
+    "filename": "newcastle_01_ncd.100.jpg",
+    "description": "Classic watery emerald-green diarrhea indicative of paramyxovirus enteritis."
+  },
+  {
+    "id": "newcastle_02",
+    "name": "Newcastle Disease (Bile-Stained Mucoid Dropping)",
+    "category": "Newcastle Disease",
+    "is_ood": false,
+    "filename": "newcastle_02_ncd.106.jpg",
+    "description": "Whitish-green mucoid stool with watery perimeter."
+  },
+  {
+    "id": "salmonella_01",
+    "name": "Salmonella (Sulfur-Yellow Chalky Urate)",
+    "category": "Salmonella",
+    "is_ood": false,
+    "filename": "salmonella_01_salmo.1001.jpg",
+    "description": "Pasty sulfur-yellow stool characteristic of pullorum/gallinarum infection."
+  },
+  {
+    "id": "salmonella_02",
+    "name": "Salmonella (Yellowish-Green Watery Stool)",
+    "category": "Salmonella",
+    "is_ood": false,
+    "filename": "salmonella_02_salmo.1026.jpg",
+    "description": "Sulfur-yellow watery diarrhea on pen floor."
+  },
+  {
+    "id": "ood_boot_01",
+    "name": "Distractor: Rubber Gumboot (Non-Fecal)",
+    "category": "Out-of-Distribution",
+    "is_ood": true,
+    "filename": "ood_boot_01_shoe_000.jpg",
+    "description": "Real farm work boot in pen. Must be rejected by OOD gate without disease prediction."
+  },
+  {
+    "id": "ood_hand_01",
+    "name": "Distractor: Human Hand (Non-Fecal)",
+    "category": "Out-of-Distribution",
+    "is_ood": true,
+    "filename": "ood_hand_01_hand_000.jpg",
+    "description": "Human hand/fingers pointing in pen frame. Must trigger INVALID_SAMPLE rejection."
+  },
+  {
+    "id": "ood_soil_01",
+    "name": "Distractor: Clean Soil Floor (No Dropping)",
+    "category": "Out-of-Distribution",
+    "is_ood": true,
+    "filename": "ood_soil_01_soil_000.jpg",
+    "description": "Bare unsoiled earth with zero fecal matter. Must trigger OOD warning."
+  }
+]

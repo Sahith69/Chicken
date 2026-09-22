@@ -1,0 +1,41 @@
+paths:
+  raw_dir: "data/raw"
+  manifest_path: "data/manifest.csv"
+  splits_dir: "data/splits"
+  train_split: "data/splits/train.csv"
+  val_split: "data/splits/val.csv"
+  test_split: "data/splits/test.csv"
+  runs_dir: "runs"
+  reports_dir: "reports"
+  figures_dir: "reports/figures"
+  samples_dir: "app/samples"
+
+seed: 42
+
+image_size: 224
+batch_size: 64
+epochs: 20
+lr: 0.001
+
+backbone: "scratch_cnn"
+
+classes:
+  - "Coccidiosis"
+  - "Healthy"
+  - "Newcastle Disease"
+  - "Salmonella"
+
+loss:
+  type: "weighted_ce"  # weighted_ce | focal
+  gamma: 2.0
+
+sampler:
+  weighted: false
+
+normalization:
+  mode: "imagenet"  # imagenet | dataset
+  dataset_mean: [0.5753, 0.5492, 0.5013]
+  dataset_std: [0.2019, 0.1912, 0.1964]
+
+dedup:
+  hamming_threshold: 4

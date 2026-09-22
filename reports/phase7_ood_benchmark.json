@@ -1,0 +1,96 @@
+{
+  "primary_detector": {
+    "method": "Deep Feature Cosine Distance (KNN-OOD)",
+    "metric": "cosine",
+    "threshold": -0.45850321650505066,
+    "val_tpr": 0.95,
+    "test_tpr": 0.9627791563275434,
+    "test_wrongly_rejected": 0.037220843672456594,
+    "ood_rejection_rate": 0.98,
+    "auroc": 0.9966004962779157,
+    "acceptance_criteria_met": true
+  },
+  "classical_detector": {
+    "method": "Classical Core-Feature Distance (KNN-OOD)",
+    "threshold": -10.973605651855465,
+    "test_tpr": 0.9503722084367245,
+    "ood_rejection_rate": 0.9266666666666666,
+    "auroc": 0.988174800110284,
+    "acceptance_criteria_met": true
+  },
+  "energy_score_baseline": {
+    "method": "Free Energy Score (calibrated T=1.63)",
+    "temperature": 1.6301593780517578,
+    "threshold": 3.0962464809417725,
+    "test_tpr": 0.9578163771712159,
+    "ood_rejection_rate": 0.23,
+    "auroc": 0.8405431486076648,
+    "acceptance_criteria_met": false
+  },
+  "three_way_comparison_table": {
+    "Deep Feature Distance (KNN Cosine)": {
+      "auroc": 0.9966004962779157,
+      "ood_rejection_rate": 0.98,
+      "fpr_at_95_tpr": 0.020000000000000018,
+      "test_tpr": 0.9627791563275434,
+      "threshold": -0.45850321650505066
+    },
+    "Classical Core-Feature Distance": {
+      "auroc": 0.988174800110284,
+      "ood_rejection_rate": 0.9266666666666666,
+      "fpr_at_95_tpr": 0.07333333333333336,
+      "test_tpr": 0.9503722084367245,
+      "threshold": -10.973605651855465
+    },
+    "Free Energy Score (T=1.63)": {
+      "auroc": 0.8405431486076648,
+      "ood_rejection_rate": 0.23,
+      "fpr_at_95_tpr": 0.77,
+      "test_tpr": 0.9578163771712159,
+      "threshold": 3.0962464809417725
+    },
+    "Maximum Logit Score (MLS)": {
+      "auroc": 0.8494789081885855,
+      "ood_rejection_rate": 0.23333333333333334,
+      "fpr_at_95_tpr": 0.7666666666666666,
+      "test_tpr": 0.9536807278742763,
+      "threshold": 2.4791064262390137
+    },
+    "Max Softmax Probability (MSP)": {
+      "auroc": 0.8279225255031708,
+      "ood_rejection_rate": 0.21333333333333335,
+      "fpr_at_95_tpr": 0.7866666666666666,
+      "test_tpr": 0.9520264681555004,
+      "threshold": 0.6202424168586731
+    },
+    "SVM Decision Margin": {
+      "auroc": 0.9324483043837883,
+      "ood_rejection_rate": 0.74,
+      "fpr_at_95_tpr": 0.26,
+      "test_tpr": 0.9387923904052936,
+      "threshold": 3.225722632545076
+    }
+  },
+  "category_breakdown": {
+    "shoes_boots": {
+      "sample_size": 75,
+      "rejection_rate": 1.0,
+      "mean_score": -0.7855870127677917
+    },
+    "hands_skin": {
+      "sample_size": 75,
+      "rejection_rate": 1.0,
+      "mean_score": -0.8049524426460266
+    },
+    "domestic_objects": {
+      "sample_size": 75,
+      "rejection_rate": 1.0,
+      "mean_score": -0.8376023769378662
+    },
+    "clean_soils": {
+      "sample_size": 75,
+      "rejection_rate": 0.92,
+      "mean_score": -0.5942438244819641
+    }
+  }
+}
