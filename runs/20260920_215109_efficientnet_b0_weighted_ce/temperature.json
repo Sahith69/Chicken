@@ -1,0 +1,18 @@
+{
+  "backbone": "efficientnet_b0",
+  "checkpoint": "/home/sahith/Projects/Chicken/runs/20260920_215109_efficientnet_b0_weighted_ce/best_model.pth",
+  "temperature": 1.6301593780517578,
+  "pre_scaling": {
+    "ece": 0.05498526720491891,
+    "mce": 0.6689254641532898,
+    "nll": 0.3675259053707123,
+    "brier_score": 0.16692732274532318
+  },
+  "post_scaling": {
+    "ece": 0.026322105189213765,
+    "mce": 0.6883174777030945,
+    "nll": 0.30457183718681335,
+    "brier_score": 0.15814794600009918
+  },
+  "ece_reduction_percentage_points": 2.866316201570515
+}

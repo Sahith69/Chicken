@@ -17,13 +17,30 @@ data/raw/*
 !data/raw/.gitkeep
 data/splits/*
 !data/splits/.gitkeep
+
+# Exclude training runs by default, but retain required inference assets
 runs/*
 !runs/.gitkeep
+!runs/classical/
+!runs/classical/svm_center_only.joblib
+!runs/classical/scaler_center_only.joblib
+!runs/ood/
+!runs/ood/classical_train_prototypes.npy
+!runs/ood/cnn_train_prototypes.npy
+!runs/ood/ood_config.json
+!runs/export/
+!runs/export/efficientnet_b0_dual.onnx
+!runs/20260920_215109_efficientnet_b0_weighted_ce/
+!runs/20260920_215109_efficientnet_b0_weighted_ce/best_model.pth
+!runs/20260920_215109_efficientnet_b0_weighted_ce/temperature.json
 
 # Model weights and exports
 *.pth
+!runs/20260920_215109_efficientnet_b0_weighted_ce/best_model.pth
 *.pt
 *.onnx
+!runs/export/efficientnet_b0_dual.onnx
+
 
 # OS and IDE files
 .DS_Store
