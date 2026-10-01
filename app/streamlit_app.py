@@ -361,7 +361,7 @@ ood_score = 0.0
 ood_threshold = 0.0
 detector_name = ""
 
-if "Option A" in architecture_mode:
+if "Option A" in architecture_mode or "Option C" in architecture_mode:
     detector_name = "Deep Feature Cosine Distance (KNN-OOD)"
     ood_threshold = -0.4585
     # Run ONNX dual model for features
@@ -385,7 +385,6 @@ t_ood = time.perf_counter()
 with col_diag:
     st.subheader("🛡️ Step 1: Out-of-Distribution (OOD) Gate")
 
-    metric_delta = ood_score - ood_threshold
     status_icon = "❌" if is_ood else "✅"
 
     st.markdown(
@@ -409,76 +408,145 @@ with col_diag:
     st.markdown("---")
     st.subheader("🔬 Step 2: Differential Diagnosis")
 
-    # Classical SVM Primary Model Execution
-    if "Option A" in architecture_mode:
-        feat_410 = extract_features_single(str(temp_img_path))
-        feat_205 = np.nan_to_num(feat_410[center_indices], nan=0.0).reshape(1, -1)
-        feat_205_scaled = scaler.transform(feat_205)
+    # -------------------------------------------------------------------------
+    # Option C: Multimodal Vision + Clinical Metadata Fusion Mode
+    # -------------------------------------------------------------------------
+    if "Option C" in architecture_mode:
+        mm_model, mm_scaler = load_multimodal_assets()
+        if mm_model is not None and mm_scaler is not None:
+            feature_cols = mm_scaler["feature_names"]
+            meta_vals = []
+            for col in feature_cols:
+                val = float(meta_inputs.get(col, 0.0))
+                m_val = mm_scaler["mean"][col]
+                s_val = mm_scaler["std"][col]
+                meta_vals.append((val - m_val) / s_val)
+            meta_t = torch.tensor([meta_vals], dtype=torch.float32)
 
-    svm_pred_idx = int(svm_model.predict(feat_205_scaled)[0])
-    svm_decision = svm_model.decision_function(feat_205_scaled)[0]
-    # Softmax over decision function for pseudo-probabilities
-    svm_exp = np.exp(svm_decision - np.max(svm_decision))
-    svm_probs = svm_exp / np.sum(svm_exp)
+            with torch.no_grad():
+                mm_logits_t, mm_gate_t = mm_model(cnn_input_tensor, meta_t)
+                mm_logits = mm_logits_t.cpu().numpy()[0]
+                mm_gate_val = float(mm_gate_t.cpu().numpy()[0][0])
 
-    # Secondary Model (EfficientNet-B0) with Temperature Scaling
-    scaled_logits = cnn_logits / calibrated_T
-    cnn_exp = np.exp(scaled_logits - np.max(scaled_logits))
-    cnn_probs = cnn_exp / np.sum(cnn_exp)
-    cnn_pred_idx = int(np.argmax(cnn_probs))
+            mm_exp = np.exp(mm_logits - np.max(mm_logits))
+            mm_probs = mm_exp / np.sum(mm_exp)
+            mm_pred_idx = int(np.argmax(mm_probs))
 
-    t_end = time.perf_counter()
-    total_latency_ms = (t_end - t_start) * 1000.0
+            t_end = time.perf_counter()
+            total_latency_ms = (t_end - t_start) * 1000.0
 
-    primary_class = CLASSES[svm_pred_idx]
-    primary_conf = svm_probs[svm_pred_idx]
+            mm_class = CLASSES[mm_pred_idx]
+            mm_conf = mm_probs[mm_pred_idx]
 
-    # Primary Diagnosis Card
-    st.markdown(
-        f"""
-        <div style="background-color: #f0f4f8; border-left: 6px solid {CLASS_COLORS[primary_class]}; padding: 16px; border-radius: 6px; margin-bottom: 12px;">
-            <h3 style="margin: 0; color: #1a202c;">Primary Diagnosis: {primary_class}</h3>
-            <p style="margin: 4px 0 0 0; color: #4a5568; font-size: 14px;">
-                Engine: <b>SVM RBF (Center-Only 60% Core)</b> | Confidence: <b>{primary_conf*100:.1f}%</b> | Latency: <b>{total_latency_ms:.1f} ms</b>
-            </p>
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
-
-    # Uncertainty Check
-    if primary_conf < 0.45:
-        st.warning("⚠️ **Low Confidence Result (< 45%):** Ambiguous presentation. Recommend resampling under better lighting or veterinary lab testing.")
-
-    # Model Consensus Indicator
-    secondary_class = CLASSES[cnn_pred_idx]
-    secondary_conf = cnn_probs[cnn_pred_idx]
-
-    if primary_class == secondary_class:
-        st.info(f"🤝 **High Dual-Engine Consensus:** Both Primary SVM and Secondary EfficientNet-B0 agree on **{primary_class}** ({secondary_conf*100:.1f}% CNN confidence).")
-    else:
-        st.warning(
-            f"⚡ **Architectural Disagreement:**  \n"
-            f"• **Primary Model (SVM Center-Only):** `{primary_class}` ({primary_conf*100:.1f}%)  \n"
-            f"• **Secondary Model (EfficientNet-B0):** `{secondary_class}` ({secondary_conf*100:.1f}%)"
-        )
-
-        # Newcastle High-Sensitivity Flag
-        if secondary_class == "Newcastle Disease" and primary_class != "Newcastle Disease":
-            st.error(
-                "🚨 **VETERINARY ADVISORY (Newcastle Alert):** EfficientNet-B0 flagged potential Newcastle Disease indicators "
-                "(CNN retains 93.9% recall on atypical substrates, where SVM dropped to 78.8%). "
-                "Because Newcastle is an acute, flock-decimating viral infection, immediate quarantine and rapid confirmatory testing are strongly recommended."
+            st.markdown(
+                f"""
+                <div style="background-color: #f0f4f8; border-left: 6px solid {CLASS_COLORS[mm_class]}; padding: 16px; border-radius: 6px; margin-bottom: 12px;">
+                    <h3 style="margin: 0; color: #1a202c;">Multimodal Diagnosis: {mm_class}</h3>
+                    <p style="margin: 4px 0 0 0; color: #4a5568; font-size: 14px;">
+                        Engine: <b>Multimodal Vision-Metadata Fusion Net</b> | Confidence: <b>{mm_conf*100:.1f}%</b> | Latency: <b>{total_latency_ms:.1f} ms</b>
+                    </p>
+                    <p style="margin: 4px 0 0 0; color: #2b6cb0; font-size: 13px;">
+                        Metadata Gating Weight (<i>g</i>): <b>{mm_gate_val:.4f}</b> (Dynamic reliance on clinical farm indicators)
+                    </p>
+                </div>
+                """,
+                unsafe_allow_html=True,
             )
 
-    # Probability Distribution Bar Chart
-    prob_df = pd.DataFrame({
-        "Condition": CLASSES,
-        "SVM Probability (%)": [p * 100 for p in svm_probs],
-        "CNN Scaled Probability (%)": [p * 100 for p in cnn_probs],
-    }).set_index("Condition")
+            # Multimodal Probability Chart
+            prob_df = pd.DataFrame({
+                "Condition": CLASSES,
+                "Multimodal Fusion Prob (%)": [p * 100 for p in mm_probs],
+            }).set_index("Condition")
+            st.bar_chart(prob_df)
 
-    st.bar_chart(prob_df)
+            svm_probs = mm_probs
+            cnn_pred_idx = mm_pred_idx
+        else:
+            st.warning("Multimodal model weights not found. Falling back to Dual-Engine mode.")
+            # Default classical execution fallback
+            feat_410 = extract_features_single(str(temp_img_path))
+            feat_205 = np.nan_to_num(feat_410[center_indices], nan=0.0).reshape(1, -1)
+            feat_205_scaled = scaler.transform(feat_205)
+            svm_pred_idx = int(svm_model.predict(feat_205_scaled)[0])
+            svm_decision = svm_model.decision_function(feat_205_scaled)[0]
+            svm_exp = np.exp(svm_decision - np.max(svm_decision))
+            svm_probs = svm_exp / np.sum(svm_exp)
+            scaled_logits = cnn_logits / calibrated_T
+            cnn_exp = np.exp(scaled_logits - np.max(scaled_logits))
+            cnn_probs = cnn_exp / np.sum(cnn_exp)
+            cnn_pred_idx = int(np.argmax(cnn_probs))
+
+    else:
+        # Standard Options A & B Classical / Dual-Engine Execution
+        if "Option A" in architecture_mode:
+            feat_410 = extract_features_single(str(temp_img_path))
+            feat_205 = np.nan_to_num(feat_410[center_indices], nan=0.0).reshape(1, -1)
+            feat_205_scaled = scaler.transform(feat_205)
+
+        svm_pred_idx = int(svm_model.predict(feat_205_scaled)[0])
+        svm_decision = svm_model.decision_function(feat_205_scaled)[0]
+        svm_exp = np.exp(svm_decision - np.max(svm_decision))
+        svm_probs = svm_exp / np.sum(svm_exp)
+
+        scaled_logits = cnn_logits / calibrated_T
+        cnn_exp = np.exp(scaled_logits - np.max(scaled_logits))
+        cnn_probs = cnn_exp / np.sum(cnn_exp)
+        cnn_pred_idx = int(np.argmax(cnn_probs))
+
+        t_end = time.perf_counter()
+        total_latency_ms = (t_end - t_start) * 1000.0
+
+        primary_class = CLASSES[svm_pred_idx]
+        primary_conf = svm_probs[svm_pred_idx]
+
+        # Primary Diagnosis Card
+        st.markdown(
+            f"""
+            <div style="background-color: #f0f4f8; border-left: 6px solid {CLASS_COLORS[primary_class]}; padding: 16px; border-radius: 6px; margin-bottom: 12px;">
+                <h3 style="margin: 0; color: #1a202c;">Primary Diagnosis: {primary_class}</h3>
+                <p style="margin: 4px 0 0 0; color: #4a5568; font-size: 14px;">
+                    Engine: <b>SVM RBF (Center-Only 60% Core)</b> | Confidence: <b>{primary_conf*100:.1f}%</b> | Latency: <b>{total_latency_ms:.1f} ms</b>
+                </p>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+
+        # Uncertainty Check
+        if primary_conf < 0.45:
+            st.warning("⚠️ **Low Confidence Result (< 45%):** Ambiguous presentation. Recommend resampling under better lighting or veterinary lab testing.")
+
+        # Model Consensus Indicator
+        secondary_class = CLASSES[cnn_pred_idx]
+        secondary_conf = cnn_probs[cnn_pred_idx]
+
+        if primary_class == secondary_class:
+            st.info(f"🤝 **High Dual-Engine Consensus:** Both Primary SVM and Secondary EfficientNet-B0 agree on **{primary_class}** ({secondary_conf*100:.1f}% CNN confidence).")
+        else:
+            st.warning(
+                f"⚡ **Architectural Disagreement:**  \n"
+                f"• **Primary Model (SVM Center-Only):** `{primary_class}` ({primary_conf*100:.1f}%)  \n"
+                f"• **Secondary Model (EfficientNet-B0):** `{secondary_class}` ({secondary_conf*100:.1f}%)"
+            )
+
+            # Newcastle High-Sensitivity Flag
+            if secondary_class == "Newcastle Disease" and primary_class != "Newcastle Disease":
+                st.error(
+                    "🚨 **VETERINARY ADVISORY (Newcastle Alert):** EfficientNet-B0 flagged potential Newcastle Disease indicators "
+                    "(CNN retains 93.9% recall on atypical substrates, where SVM dropped to 78.8%). "
+                    "Because Newcastle is an acute, flock-decimating viral infection, immediate quarantine and rapid confirmatory testing are strongly recommended."
+                )
+
+        # Probability Distribution Bar Chart
+        prob_df = pd.DataFrame({
+            "Condition": CLASSES,
+            "SVM Probability (%)": [p * 100 for p in svm_probs],
+            "CNN Scaled Probability (%)": [p * 100 for p in cnn_probs],
+        }).set_index("Condition")
+
+        st.bar_chart(prob_df)
+
 
 # -----------------------------------------------------------------------------
 # Step 3: Visual Explainability (Grad-CAM Heatmap)
