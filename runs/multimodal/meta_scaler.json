@@ -1,0 +1,23 @@
+{
+  "mean": {
+    "mortality_24h": 3.2848291397094727,
+    "water_drop_pct": 15.653088569641113,
+    "feed_drop_pct": 18.886226654052734,
+    "flock_age_weeks": 15.60205364227295,
+    "coop_temp_c": 27.0920352935791
+  },
+  "std": {
+    "mortality_24h": 4.877949237823486,
+    "water_drop_pct": 11.592281341552734,
+    "feed_drop_pct": 13.483251571655273,
+    "flock_age_weeks": 14.825061798095703,
+    "coop_temp_c": 3.022660493850708
+  },
+  "feature_names": [
+    "mortality_24h",
+    "water_drop_pct",
+    "feed_drop_pct",
+    "flock_age_weeks",
+    "coop_temp_c"
+  ]
+}

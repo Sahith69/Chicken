@@ -13,6 +13,7 @@ if str(PROJECT_ROOT) not in sys.path:
 from app.streamlit_app import (
     load_classical_assets,
     load_deep_learning_assets,
+    load_multimodal_assets,
     load_sample_gallery,
     preprocess_image_for_cnn,
     evaluate_deep_ood_gate,
@@ -31,8 +32,9 @@ def test_app_pipeline():
     print("Loading assets...")
     svm_model, scaler, class_proto, center_indices = load_classical_assets()
     ort_session, pytorch_model, gradcam_engine, temp, cnn_proto, ood_cfg = load_deep_learning_assets()
+    mm_model, mm_scaler = load_multimodal_assets()
     gallery = load_sample_gallery()
-    print(f"Loaded successfully! Gallery contains {len(gallery)} samples.")
+    print(f"Loaded successfully! Multimodal Model Ready: {mm_model is not None}. Gallery contains {len(gallery)} samples.")
 
     # 2. Test In-Distribution Sample (Coccidiosis)
     cocci_sample = [s for s in gallery if s["id"] == "cocci_01"][0]

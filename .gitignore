@@ -33,10 +33,15 @@ runs/*
 !runs/20260920_215109_efficientnet_b0_weighted_ce/
 !runs/20260920_215109_efficientnet_b0_weighted_ce/best_model.pth
 !runs/20260920_215109_efficientnet_b0_weighted_ce/temperature.json
+!runs/multimodal/
+!runs/multimodal/best_multimodal_model.pth
+!runs/multimodal/meta_scaler.json
 
 # Model weights and exports
 *.pth
 !runs/20260920_215109_efficientnet_b0_weighted_ce/best_model.pth
+!runs/multimodal/best_multimodal_model.pth
+
 *.pt
 *.onnx
 !runs/export/efficientnet_b0_dual.onnx

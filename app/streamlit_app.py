@@ -108,6 +108,25 @@ def load_deep_learning_assets():
     return ort_session, pytorch_model, gradcam_engine, temperature, cnn_prototypes, ood_config
 
 
+@st.cache_resource
+def load_multimodal_assets():
+    model_path = PROJECT_ROOT / "runs" / "multimodal" / "best_multimodal_model.pth"
+    scaler_path = PROJECT_ROOT / "runs" / "multimodal" / "meta_scaler.json"
+
+    if not model_path.exists() or not scaler_path.exists():
+        return None, None
+
+    with open(scaler_path) as f:
+        scaler_params = json.load(f)
+
+    from src.multimodal_model import MultimodalPoultryNet
+
+    model = MultimodalPoultryNet(num_classes=4, meta_dim=5, embed_dim=64)
+    model.load_state_dict(torch.load(model_path, map_location="cpu"))
+    model.eval()
+    return model, scaler_params
+
+
 @st.cache_data
 def load_sample_gallery():
     manifest_path = PROJECT_ROOT / "app" / "samples" / "manifest.json"
@@ -138,10 +157,8 @@ def evaluate_deep_ood_gate(
 ) -> Tuple[bool, float]:
     """KNN Cosine Distance to training fecal prototypes. Returns (is_ood, distance_score)."""
     norm_feat = features_1280 / np.linalg.norm(features_1280, axis=1, keepdims=True)
-    # Cosine similarities: dot product
     sims = np.dot(prototypes, norm_feat.T).squeeze()  # [N_proto]
     cosine_dists = 1.0 - sims
-    # Top-5 nearest neighbors
     top5_dists = np.partition(cosine_dists, 5)[:5]
     mean_dist = float(np.mean(top5_dists))
     score = -mean_dist  # Higher = closer to in-distribution, Lower = OOD
@@ -199,11 +216,27 @@ architecture_mode = st.sidebar.radio(
     options=[
         "Option A: Dual-Engine Max-Safeguard (Default)",
         "Option B: Lightweight-First Edge Mode",
+        "Option C: Multimodal Vision + Metadata Fusion (Novelty Mode)",
     ],
     index=0,
-    help="Option A uses the 98% Deep Feature OOD Gate, Primary SVM diagnosis, and instant Grad-CAM (~21.6 ms). Option B uses Classical Core Distance OOD and pure SVM (~14.4 ms).",
+    help="Option A uses Deep OOD Gate + Primary SVM + Grad-CAM (~21.6 ms). Option B uses Classical OOD + pure SVM (~14.4 ms). Option C fuses Stool Image + Flock Clinical Metadata.",
 )
 
+# Render Clinical Metadata Inputs if Option C selected
+meta_inputs = {}
+if "Option C" in architecture_mode:
+    st.sidebar.markdown("---")
+    st.sidebar.header("📋 Flock Clinical Metadata")
+    st.sidebar.caption("Provide real-time flock health indicators to fuse with visual analysis:")
+
+    meta_inputs["mortality_24h"] = st.sidebar.number_input("24h Mortality Count (birds)", min_value=0, max_value=100, value=0, help="Number of birds found dead in the last 24 hours.")
+    meta_inputs["water_drop_pct"] = st.sidebar.slider("Water Consumption Drop (%)", 0.0, 50.0, 0.0, 0.5, help="Percentage drop in daily water intake.")
+    meta_inputs["feed_drop_pct"] = st.sidebar.slider("Feed Intake Reduction (%)", 0.0, 50.0, 0.0, 0.5, help="Percentage drop in daily feed consumption.")
+    meta_inputs["flock_age_weeks"] = st.sidebar.number_input("Flock Age (weeks)", min_value=1, max_value=100, value=12, help="Current age of the flock in weeks.")
+    meta_inputs["coop_temp_c"] = st.sidebar.slider("Coop Ambient Temperature (°C)", 15.0, 42.0, 26.0, 0.5, help="Current ambient temperature in the poultry house.")
+
+
+st.sidebar.markdown("---")
 st.sidebar.markdown("---")
 st.sidebar.header("📸 Image Input Source")
 
@@ -217,6 +250,7 @@ gallery_samples = load_sample_gallery()
 
 selected_sample = None
 uploaded_file = None
+bird_uploaded_file = None
 
 if input_mode == "Pick from Sample Gallery":
     sample_options = [f"{s['category']}: {s['name']}" for s in gallery_samples]
@@ -225,16 +259,23 @@ if input_mode == "Pick from Sample Gallery":
     st.sidebar.info(f"**Description:** {selected_sample['description']}")
 else:
     uploaded_file = st.sidebar.file_uploader(
-        "Upload a fecal photograph (JPG/PNG):",
+        "1. Upload Fecal Dropping Photograph (JPG/PNG):",
         type=["jpg", "jpeg", "png"],
         help="Ensure image is clear, well-lit, and centered on the fecal droplet.",
+    )
+    bird_uploaded_file = st.sidebar.file_uploader(
+        "2. 🐔 Bird Photograph (Optional Dual-Vision Mode):",
+        type=["jpg", "jpeg", "png"],
+        help="Upload a photo of the chicken (showing comb, posture, or droopiness) to fuse with stool pathology.",
     )
 
 # -----------------------------------------------------------------------------
 # Image Loading & Validation
 # -----------------------------------------------------------------------------
 pil_image = None
+bird_pil_image = None
 image_source_label = ""
+bird_source_label = ""
 
 if input_mode == "Pick from Sample Gallery" and selected_sample:
     sample_path = PROJECT_ROOT / "app" / "samples" / selected_sample["filename"]
@@ -245,22 +286,32 @@ if input_mode == "Pick from Sample Gallery" and selected_sample:
         st.error(f"Error loading gallery sample '{sample_path}': {e}")
         st.stop()
 
-elif input_mode == "Upload Custom Photo" and uploaded_file is not None:
-    try:
-        pil_image = Image.open(uploaded_file)
-        # Verify image integrity
-        pil_image.verify()
-        # Re-open after verify() closes it
-        uploaded_file.seek(0)
-        pil_image = Image.open(uploaded_file).convert("RGB")
-        image_source_label = f"Uploaded File: {uploaded_file.name}"
-    except Exception:
-        st.error("🚨 **Error:** Uploaded file is corrupt, truncated, or not a valid image. Please provide a standard JPEG or PNG photo.")
-        st.stop()
+elif input_mode == "Upload Custom Photo":
+    if uploaded_file is not None:
+        try:
+            pil_image = Image.open(uploaded_file)
+            pil_image.verify()
+            uploaded_file.seek(0)
+            pil_image = Image.open(uploaded_file).convert("RGB")
+            image_source_label = f"Fecal Photo: {uploaded_file.name}"
+        except Exception:
+            st.error("🚨 **Error:** Uploaded fecal file is corrupt or not a valid image.")
+            st.stop()
+
+    if bird_uploaded_file is not None:
+        try:
+            bird_pil_image = Image.open(bird_uploaded_file)
+            bird_pil_image.verify()
+            bird_uploaded_file.seek(0)
+            bird_pil_image = Image.open(bird_uploaded_file).convert("RGB")
+            bird_source_label = f"Bird Photo: {bird_uploaded_file.name}"
+        except Exception:
+            st.warning("⚠️ Bird photo was invalid or unreadable; proceeding with stool analysis.")
 
 if pil_image is None:
     st.info("👈 Please select a sample from the sidebar gallery or upload an image to begin screening.")
     st.stop()
+
 
 # -----------------------------------------------------------------------------
 # Asset Loading
@@ -278,11 +329,22 @@ except Exception as e:
 col_img, col_diag = st.columns([1.1, 1.4], gap="large")
 
 with col_img:
-    st.subheader("📷 Input Photograph")
-    st.image(pil_image, caption=image_source_label, use_container_width=True)
+    st.subheader("📷 Input Photographs")
+    if bird_pil_image is not None:
+        sub_c1, sub_c2 = st.columns(2)
+        with sub_c1:
+            st.image(pil_image, caption=f"💩 {image_source_label}", use_container_width=True)
+            w, h = pil_image.size
+            st.caption(f"Stool: {w}×{h} px")
+        with sub_c2:
+            st.image(bird_pil_image, caption=f"🐔 {bird_source_label}", use_container_width=True)
+            bw, bh = bird_pil_image.size
+            st.caption(f"Bird: {bw}×{bh} px")
+    else:
+        st.image(pil_image, caption=image_source_label, use_container_width=True)
+        w, h = pil_image.size
+        st.caption(f"Dimensions: {w} × {h} pixels | Format: {pil_image.format or 'RGB'}")
 
-    w, h = pil_image.size
-    st.caption(f"Dimensions: {w} × {h} pixels | Format: {pil_image.format or 'RGB'}")
 
 # Preprocess image
 cnn_input_np, cnn_input_tensor = preprocess_image_for_cnn(pil_image)

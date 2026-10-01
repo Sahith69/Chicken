@@ -1,0 +1,78 @@
+{
+  "model_name": "MultimodalPoultryNet (EfficientNet-B0 + Clinical Gated Fusion)",
+  "test_samples": 1209,
+  "test_accuracy": 0.9966914805624483,
+  "test_macro_f1": 0.996237248197021,
+  "average_gating_weight": 0.9160298705101013,
+  "classification_report": {
+    "Coccidiosis": {
+      "precision": 1.0,
+      "recall": 0.9918918918918919,
+      "f1-score": 0.9959294436906377,
+      "support": 370.0
+    },
+    "Healthy": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1-score": 1.0,
+      "support": 361.0
+    },
+    "Newcastle Disease": {
+      "precision": 0.9882352941176471,
+      "recall": 1.0,
+      "f1-score": 0.9940828402366864,
+      "support": 84.0
+    },
+    "Salmonella": {
+      "precision": 0.9924242424242424,
+      "recall": 0.9974619289340102,
+      "f1-score": 0.9949367088607595,
+      "support": 394.0
+    },
+    "accuracy": 0.9966914805624483,
+    "macro avg": {
+      "precision": 0.9951648841354723,
+      "recall": 0.9973384552064755,
+      "f1-score": 0.996237248197021,
+      "support": 1209.0
+    },
+    "weighted avg": {
+      "precision": 0.9967137437725673,
+      "recall": 0.9966914805624483,
+      "f1-score": 0.9966930653734961,
+      "support": 1209.0
+    }
+  },
+  "confusion_matrix": [
+    [
+      367,
+      0,
+      0,
+      3
+    ],
+    [
+      0,
+      361,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      84,
+      0
+    ],
+    [
+      0,
+      0,
+      1,
+      393
+    ]
+  ],
+  "comparison_vs_image_only": {
+    "image_only_accuracy": 0.8941273779983457,
+    "image_only_macro_f1": 0.8714376545199868,
+    "accuracy_improvement_pct": 10.256410256410254,
+    "macro_f1_improvement": 0.12479959367703419
+  }
+}
