@@ -437,6 +437,8 @@ with col_diag:
 
             mm_class = CLASSES[mm_pred_idx]
             mm_conf = mm_probs[mm_pred_idx]
+            primary_class = mm_class
+            primary_conf = mm_conf
 
             st.markdown(
                 f"""
@@ -476,6 +478,8 @@ with col_diag:
             cnn_exp = np.exp(scaled_logits - np.max(scaled_logits))
             cnn_probs = cnn_exp / np.sum(cnn_exp)
             cnn_pred_idx = int(np.argmax(cnn_probs))
+            primary_class = CLASSES[svm_pred_idx]
+            primary_conf = svm_probs[svm_pred_idx]
 
     else:
         # Standard Options A & B Classical / Dual-Engine Execution
@@ -632,7 +636,7 @@ disease_dossiers = {
     },
 }
 
-dossier = disease_dossiers[primary_class]
+dossier = disease_dossiers.get(primary_class, disease_dossiers["Healthy"])
 
 with st.container():
     c1, c2 = st.columns(2)
