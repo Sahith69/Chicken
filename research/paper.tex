@@ -1,0 +1,367 @@
+\documentclass[conference]{IEEEtran}
+\IEEEoverridecommandlockouts
+\usepackage{cite}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{algorithmic}
+\usepackage{graphicx}
+\usepackage{textcomp}
+\usepackage[table]{xcolor}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{url}
+
+\def\BibTeX{{\rm B\kern-.05em{\sc i\kern-.025em b}\kern-.08em
+    T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
+
+\setlength{\textfloatsep}{3pt plus 1.0pt minus 1.0pt}
+\setlength{\floatsep}{2pt plus 1.0pt minus 1.0pt}
+\setlength{\intextsep}{2pt plus 1.0pt minus 1.0pt}
+\setlength{\dbltextfloatsep}{3pt plus 1.0pt minus 1.0pt}
+\setlength{\dblfloatsep}{2pt plus 1.0pt minus 1.0pt}
+\setlength{\abovecaptionskip}{1pt}
+\setlength{\belowcaptionskip}{1pt}
+\renewcommand{\arraystretch}{0.84}
+\renewcommand{\baselinestretch}{0.97}
+
+\begin{document}
+
+\title{Auditing Vision-Based Poultry Disease Screening Under Leakage and Confounder Controls: Deep Architectures, Classical Baselines, and Edge Limits}
+
+\author{
+\IEEEauthorblockN{Shamanth}
+\IEEEauthorblockA{\textit{Department of Computer Science} \\
+\textit{Dr. NSAM First Grade College Nitte} \\
+Register No: NNS24BC070 \\
+Karkala, India \\
+shamanth@nitte.edu.in}
+}
+
+\maketitle
+
+\begin{abstract}
+Vision-based poultry disease triage offers accessible preliminary diagnostics for smallholder farming communities. Evaluating models on the PCR-verified Tanzanian poultry fecal dataset ($N=8{,}067$), we uncover that published high-accuracy benchmarks ($>95\%$) are artifactual, driven by naive split leakage of near-duplicate photographic bursts. Using perceptual hashing (Hamming threshold $\le 4$) and graph connected-component partitioning, we establish a leak-free 70/15/15 benchmark ($N=1{,}209$ test; 7,714 isolated scene groups). An empirical confounder audit reveals acute substrate correlation ($\chi^2 = 3{,}159.75, p < 10^{-300}$, Cramer's $V = 0.361$): $86.48\%$ of Healthy images sit on wood shavings, while $71.29\%$ of Coccidiosis images sit on dark soil or reddish litter. Under leak-free holdout evaluation, deep CNNs achieve $89.41\%$ accuracy (macro-F1 $0.8714$ for EfficientNet-B0), but Healthy recall collapses from $86.15\%$ to $68.52\%$ on an audited hard-minority substrate subset ($n=374$), corroborated by Grad-CAM attention dispersion from stool into bedding. Stripping peripheral image features and training strictly on the central 60\% fecal core (205-d CIELAB, HSV, LBP, and Haar wavelets), an ablated Support Vector Machine with RBF kernel eliminates substrate shortcuts while outperforming deep CNNs ($93.55\%$ accuracy, $0.9195$ macro-F1 overall; $86.90\%$ hard macro-F1; 2.65\,MB footprint; 14.2\,ms CPU latency). However, classical models exhibit a critical veterinary trade-off: Newcastle recall on atypical substrates drops to $78.79\%$ versus $93.94\%$ for EfficientNet-B0. For out-of-distribution (OOD) guarding across 300 real-world farm distractors (boots, hands, tools, bare pen soil), logit-based scores fail catastrophically (rejecting only 21.3--23.3\% of OOD, admitting $77\%$ of boots and hands) due to ImageNet linear projection bias. In contrast, deep cosine feature distance achieves $98.00\%$ OOD rejection (100\% on boots, hands, and tools; AUROC 0.9966) at a 95\% in-distribution pass rate. Finally, ONNX FP32 CPU execution delivers 2.88$\times$ speedup (4.65\,ms/image, 214.9 FPS) with exact numerical agreement, whereas dynamic INT8 quantization collapses top-1 fidelity to $15.50\%$ due to depthwise separable accumulation degradation.
+\end{abstract}
+
+\begin{IEEEkeywords}
+Confounder audit, data leakage, edge computing, explainable artificial intelligence (XAI), Grad-CAM, out-of-distribution (OOD) detection, poultry pathology, shortcut learning, veterinary screening.
+\end{IEEEkeywords}
+
+\section*{Note to Practitioners}
+This study evaluates automated vision screening of avian enteric and systemic diseases from poultry fecal photographs for smallholder farmers and veterinary extension officers. Three operational cautions follow directly from our audit. First, reported classification accuracies exceeding $95\%$ in prior literature are inflated by photographic burst leakage across splits; under leak-free grouped evaluation, true generalized neural accuracy is $89.41\%$. Second, unconstrained convolutional networks learn pen bedding shortcuts: when healthy birds defecate on bare soil or straw rather than wood shavings, the neural false-alarm rate spikes (Healthy recall drops by $17.63$\,pp). Training purely on the central $60\%$ fecal core mitigates this shortcut, but reduces sensitivity to atypical Newcastle Disease presentations ($78.79\%$ vs.\ $93.94\%$). Third, standard neural networks confidently classify boots, hands, and tools as lethal poultry diseases; logit-based rejection fails, making penultimate feature-distance gating mandatory. Vision outputs must remain a screening triage aid, never superseding veterinary examination or PCR confirmation.
+
+\section{Introduction}
+Avian enteric and respiratory diseases cause severe flock mortality and economic ruin in smallholder poultry farming \cite{machuve2022poultry, fao2020poultry}. The primary pathological threats encompass: (1)~\textbf{Coccidiosis (\textit{Eimeria tenella/acervulina})}, an intestinal protozoan infection causing mucosal shedding and acute hemorrhagic diarrhea; (2)~\textbf{Salmonella enteritis (\textit{Salmonella pullorum/gallinarum})}, producing pasty sulfur-yellow urates and chick septicemia; (3)~\textbf{Newcastle Disease (APMV-1)}, an acute paramyxovirus causing emerald-green watery diarrhea, torticollis, and sudden mass mortality; and (4)~\textbf{Healthy}, baseline firm stools capped by normal uric acid.
+
+Early intervention is vital, yet rural farming communities frequently lack access to veterinary pathology laboratories or diagnostic molecular assays (PCR, fecal oocyst counts) \cite{machuve2022poultry, adeyemo2021poultry}. Computer vision using smartphone-captured droppings has emerged as an appealing low-cost screening modality \cite{machuve2022poultry, owomugisha2021machine, zhuang2018automated}. However, translating academic vision models into reliable field biosecurity systems faces three critical, under-audited hazards:
+
+First, \textbf{split leakage}: field photography campaigns capture bursts of sequential shots of identical droppings. When datasets are partitioned via naive random splitting, near-duplicate burst images are inadvertently distributed across train and test partitions, yielding optimistic metrics ($>95\%$) that mask poor generalization to unseen droppings \cite{petchiammal2023paddy, barbedo2018factors}.
+
+Second, \textbf{substrate shortcut learning}: poultry housing contains diverse bedding substrates (wood shavings, sawdust, bare dirt, gravel, concrete). If photography protocols correlate specific substrates with disease classes, convolutional kernels latch onto high-contrast litter textures rather than subtle fecal pathology \cite{geirhos2020shortcut, lapuschkin2019unmasking}.
+
+Third, \textbf{out-of-distribution (OOD) hallucination}: in barn deployments, camera sensors inevitably capture non-fecal objects such as rubber gumboots, hands, feed cups, or bare pen flooring. Standard closed-set softmax classifiers distribute 100\% of their probability mass over diagnostic classes, hallucinating confident disease diagnoses on footwear.
+
+To systematically address these deployment hazards, this paper provides a comprehensive empirical audit and architectural framework for poultry disease triage. The key contributions are:
+\begin{itemize}\setlength{\itemsep}{0.5pt}\setlength{\parskip}{0pt}\setlength{\parsep}{0pt}
+    \item \textbf{Leak-free grouped splitting}: We establish a benchmark on the $N=8{,}067$ PCR dataset \cite{machuve2022poultry} using perceptual hashing ($p\text{Hash} \le 4$) to partition 7,714 isolated scene clusters, demonstrating that published $>95\%$ accuracies degrade to $89.41\%$ on held-out scenes.
+    \item \textbf{Substrate confounder discovery}: We quantify a severe statistical association ($\chi^2 = 3{,}159.75$, $V = 0.361$) between bedding and labels, and execute a hard-minority stress test ($n=374$) revealing an acute 17.63\,pp drop in Healthy recall.
+    \item \textbf{Ablated core-only classical ML champion}: By engineering 205-d multi-color-space and texture descriptors strictly from the central 60\% core, an ablated SVM ($93.55\%$ accuracy, $0.9195$ macro-F1) eliminates background shortcuts and outperforms deep CNNs with 2.65\,MB footprint.
+    \item \textbf{Epidemiological trade-off identification}: We document that while core-only models resist bedding shortcuts, they suffer a 15.15\,pp recall deficit ($78.79\%$ vs.\ $93.94\%$) on atypical Newcastle Disease presentations.
+    \item \textbf{Audited OOD rejection gate}: Evaluating six OOD scoring methods against 300 real farm distractors, we reveal why logit-based methods fail ($23\%$ rejection) due to ImageNet linear projection bias, whereas deep cosine distance achieves $98.00\%$ rejection (AUROC 0.9966).
+    \item \textbf{Edge profiling and quantization limits}: Profiling FP32 and dynamic INT8 ONNX engines reveals that FP32 achieves 214.9 FPS on CPU (2.88$\times$ speedup), whereas dynamic INT8 destroys depthwise separable accuracy ($15.50\%$).
+\end{itemize}
+
+\section{Literature Review}
+Computer vision in poultry farming has progressed from acoustic vocalization monitoring \cite{zhuang2018automated} and thermal camera tracking to RGB image classification of gross fecal pathology \cite{machuve2022poultry, owomugisha2021machine}. Machuve et al. \cite{machuve2022poultry} introduced the foundational open benchmark for deep learning-based poultry disease diagnosis from feces, capturing 8,067 images under PCR confirmation in Arusha and Kilimanjaro, Tanzania. Using transfer learning with VGG-16, ResNet-50, and MobileNetV2, they reported classification accuracies between 95\% and 98\%. However, their evaluation relied on naive random cross-validation, leaving models vulnerable to burst duplicate leakage and substrate confounders.
+
+Data leakage via near-duplicate images represents an endemic challenge across agricultural computer vision benchmarks \cite{barbedo2018factors}. Studies evaluating deep networks on leaf benchmarks demonstrated that when photographic twins or multi-angle shots of identical specimens straddle splits, test accuracy drops by 8--25\,pp upon proper clustering \cite{petchiammal2023paddy, barbedo2018factors}. Similar phenomena occur in poultry facilities, where burst photography capturing identical droppings from slightly rotated angles introduces high train-test correlation.
+
+Shortcut learning is well-documented in deep neural networks \cite{geirhos2020shortcut, lapuschkin2019unmasking}. In medical and agricultural imaging, deep classifiers frequently exploit background artifacts to achieve high nominal accuracy without attending to clinical lesions \cite{lapuschkin2019unmasking}. Post-hoc visual attribution via Grad-CAM \cite{selvaraju2017grad} has become standard for validating network focus. However, whether neural models maintain reliable diagnostic focus when subject to natural substrate shifts in agricultural housing remains largely unquantified.
+
+Out-of-distribution (OOD) detection aims to identify non-target inputs before inference. Foundational baselines rely on Maximum Softmax Probability (MSP) \cite{hendrycks2017baseline} and Free Energy scoring \cite{liu2020energy}. Penultimate feature representations have recently demonstrated superior boundary separation using distance-based metrics (KNN-OOD) \cite{sun2022knn}. In veterinary screening, preventing false alarms on non-biological debris is essential to avoid unwarranted flock medication or panic culling. A systematic comparison of prior poultry disease assessment frameworks against this work is presented in Table~\ref{tab:related_work}.
+
+\begin{table*}[!t]
+\caption{Comparison of Prior Poultry and Avian Disease Assessment Frameworks with Proposed Work}
+\centering\footnotesize
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{lp{2.8cm}p{3.2cm}p{3.8cm}p{3.0cm}p{4.2cm}}
+\toprule
+\textbf{Study} & \textbf{Target Pathology} & \textbf{Dataset \& Modality} & \textbf{Methodology} & \textbf{Evaluation Metrics} & \textbf{Scope \& Operational Constraints} \\
+\midrule
+Machuve et al. \cite{machuve2022poultry} & Coccidiosis, Salmonella, NCD, Healthy & Tanzanian fecal dataset ($N=8{,}067$, PCR-verified) & Standard deep transfer CNNs (VGG-16, ResNet-50, MobileNetV2) & Classification Accuracy (95--98\%) & Evaluated on naive random train/val/test splits; high burst leakage; unexamined substrate confounders; no OOD safeguards. \\
+Owomugisha et al. \cite{owomugisha2021machine} & Enteric poultry conditions & Multi-spectral ground sensors / RGB leaves \& stool & Classical feature extraction + Random Forest / SVM & Accuracy, Precision, Recall, AUC & High acquisition hardware requirements; no confounder ablation or non-fecal distractor gating. \\
+Zhuang et al. \cite{zhuang2018automated} & Avian influenza, respiratory rales & Acoustic microphone arrays in poultry sheds & Spectrogram feature mapping + SVM / Deep CNNs & Sound detection rate, False alarm rate & Limited to vocalizing respiratory infections; unable to detect silent enteric diseases (Salmonella, Coccidiosis). \\
+\textbf{Proposed Work} & \textbf{Coccidiosis, Salmonella, NCD, Healthy} & \textbf{PCR-verified fecal benchmark ($N=8{,}067$) + 300 OOD real farm distractors} & \textbf{Dual-Engine: Core-Only SVM (205-d) + Calibrated EfficientNet-B0 ONNX + Cosine OOD Gate} & \textbf{Macro-F1, Hard-Subset Recall, AUROC, ECE, CPU Latency, OOD Rejection} & \textbf{Leak-free graph-clustered splits, empirical substrate confounder audit, central-core ablation, and ImageNet projection bias resolution.} \\
+\bottomrule
+\end{tabular}%
+}
+\label{tab:related_work}
+\end{table*}
+
+\section{Dataset Description and Confounder Analysis}
+
+\subsection{Dataset Overview}
+We utilize the Tanzanian poultry disease diagnostic dataset published by Machuve et al. \cite{machuve2022poultry}, which comprises $N=8{,}067$ images across four conditions: Coccidiosis ($2{,}476$, 30.70\%), Healthy ($2{,}404$, 29.80\%), Newcastle Disease ($562$, 6.97\%), and Salmonella ($2{,}625$, 32.54\%). The images are uniformly $224 \times 224$ pixels in 3-channel RGB format, captured under ambient daylight on smallholder poultry farms in Arusha and Kilimanjaro using commercial smartphones. Every image represents a fecal dropping on coop pen flooring, confirmed by laboratory real-time polymerase chain reaction (RT-PCR) testing. 
+
+Upstream repositories mirrored on Kaggle provide pre-partitioned `train/`, `val/`, and `test/` directories. Per our audit protocol, these upstream partitions were pooled and flattened back into an unpartitioned directory to eliminate inherited cross-split burst contamination before generating group-aware splits.
+
+\subsection{Substrate Confounder Discovery}
+Droppings in smallholder chicken pens are deposited on diverse bedding substrates, including wood shavings, dry sawdust, red clay, dark volcanic soil, and straw. If photographic campaigns systematically capture healthy birds in well-managed brooders with fresh wood shavings, but document diseased birds on uncleaned dirt flooring, deep neural networks will learn the bedding environment as an empirical shortcut.
+
+To quantitatively evaluate this risk, we extracted an outer 15\% border crop from all 8,067 images, isolating pen substrate while excluding the central stool. We computed color moments (RGB/HSV) and uniform Local Binary Patterns (LBP) across each border crop and applied $k$-means clustering ($k=4$) to discover dominant substrate categories: Cluster 0 (Dark soil/concrete, $n = 1{,}228$, 15.2\%), Cluster 1 (Light wood shavings, $n = 4{,}241$, 52.6\%), Cluster 2 (Reddish-brown litter, $n = 1{,}403$, 17.4\%), and Cluster 3 (Mixed straw/pen floor, $n = 1{,}195$, 14.8\%).
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.96\columnwidth]{figures/substrate_cluster_crosstab.png}
+\caption{Cross-tabulation heatmap of substrate background clusters versus diagnostic disease categories ($\chi^2 = 3{,}159.75, V = 0.361$). Wood shavings (Cluster 1) account for $86.48\%$ of Healthy samples but only $14.01\%$ of Coccidiosis.}
+\label{fig:substrate_crosstab}
+\end{figure}
+
+Cross-tabulating substrate clusters against diagnostic categories reveals acute confounder alignment (Fig.~\ref{fig:substrate_crosstab}):
+\begin{itemize}\setlength{\itemsep}{0.5pt}\setlength{\parskip}{0pt}\setlength{\parsep}{0pt}
+    \item \textbf{Healthy}: $86.48\%$ ($2{,}079/2{,}404$) of all healthy droppings sit on Cluster 1 (light wood shavings), while only $1.12\%$ ($27/2{,}404$) sit on dark soil.
+    \item \textbf{Coccidiosis}: Only $14.01\%$ ($347/2{,}476$) sit on wood shavings, whereas $71.29\%$ ($1{,}765/2{,}476$) sit on dark soil (Cluster 0) or reddish litter (Cluster 2).
+    \item \textbf{Salmonella \& Newcastle Disease}: Display intermediate distributions, with $56.38\%$ and $59.61\%$ on wood shavings, respectively.
+\end{itemize}
+
+A contingency test confirms strong statistical dependence ($\chi^2 = 3{,}159.75, p < 10^{-300}$, df $= 9$). Cramer's $V = \sqrt{3{,}159.75 / (8{,}067 \cdot 3)} = 0.361$, which significantly exceeds the concern threshold ($V > 0.30$). This confirms an acute operational risk: an unconstrained deep vision model can easily associate "wood shavings = Healthy" and "dark/reddish soil = Coccidiosis", shortcutting biological fecal pathology.
+
+\section{Proposed Methodology}
+Our framework unifies leak-free graph-partitioned data handling, shortcut-resistant core feature engineering, deep transfer learning with uncertainty calibration, out-of-distribution feature gating, and low-latency ONNX inference.
+
+\subsection{Leak-Free Grouped Splitting via Perceptual Hashing}
+To prevent burst leakage, every image is hashed using difference hashing (\texttt{dhash}) on 64-bit grayscale representations. Let $h(\mathbf{x}_i) \in \{0, 1\}^{64}$ denote the hash of image $\mathbf{x}_i$. We construct an adjacency graph $\mathcal{G} = (\mathcal{V}, \mathcal{E})$, where vertices represent images, and an undirected edge $e_{ij} \in \mathcal{E}$ is created if Hamming distance satisfies $\mathcal{D}_H(h(\mathbf{x}_i), h(\mathbf{x}_j)) \le 4$. Decomposing $\mathcal{G}$ into connected components yields $7{,}714$ isolated scene groups across the $8{,}067$ images ($353$ duplicate images, $4.4\%$ duplicate burden, maximum cluster size 4). Sensitivity testing at threshold $\le 6$ confirmed identical cluster boundaries.
+
+Using \texttt{StratifiedGroupKFold} ($K=20$), the dataset is partitioned into a 70/15/15 ratio strictly grouped by \texttt{group\_id}: Train ($5{,}649$ images, $5{,}400$ groups), Validation ($1{,}209$ images, $1{,}156$ groups), and Test ($1{,}209$ images, $1{,}158$ groups). All class proportions are preserved across partitions within $0.1\%$, with verified zero group overlap across splits.
+
+\subsection{Deep Convolutional Backbone and Calibration}
+For deep learning benchmarking, we evaluate ImageNet-pretrained backbones: MobileNetV2-100 (2.23M params), EfficientNet-B0 (4.01M params), and ResNet-50 (23.52M params). To handle the 4.67:1 class imbalance, models minimize weighted cross-entropy:
+\begin{equation}
+\mathcal{L}_{\text{WCE}} = - \sum_{c=1}^C w_c \cdot y_c \log(\sigma(f(\mathbf{x}))_c), \quad w_c = \frac{N}{C \cdot N_c},
+\end{equation}
+yielding inverse frequency weights: Coccidiosis: 0.542, Healthy: 0.559, Newcastle Disease: 2.387, Salmonella: 0.512.
+
+Training follows a two-stage protocol: Stage 1 trains the linear head with backbone frozen ($5$ epochs, $lr = 10^{-3}$, AdamW). Stage 2 unfreezes the top $19.6\%$ scalar parameters backward with cosine learning rate decay ($lr = 10^{-5}$, AdamW, weight decay $10^{-4}$). Crucially, batch normalization layers remain locked in evaluation mode (\texttt{eval()}) to prevent corruption of running statistics.
+
+To eliminate neural overconfidence, temperature scaling fits a scalar $T > 0$ on validation logits $\mathbf{z} = f(\mathbf{x})$ by minimizing Negative Log-Likelihood (NLL): $\hat{P}(y = c \mid \mathbf{x}) = \exp(z_c / T) / \sum_{j=1}^C \exp(z_j / T)$. Expected Calibration Error (ECE) across $M=15$ equal-width confidence bins measures calibration fidelity: $\text{ECE} = \sum_{m=1}^M \frac{|B_m|}{N} | \text{acc}(B_m) - \text{conf}(B_m) |$.
+
+\subsection{Shortcut-Resistant Core Feature Engineering}
+To establish an interpretable, edge-deployable baseline immune to peripheral litter shortcuts, we engineer 410 domain-grounded visual features structured via a spatial pyramid across multi-color spaces (RGB, HSV, CIELAB histograms and moments; 171 features), micro-texture (uniform LBP; 10 features), co-occurrence statistics (GLCM contrast, dissimilarity, homogeneity, energy, correlation, ASM; 12 features), and multi-resolution wavelet energies (2-level 2D Haar DWT detail sub-band energies and stds; 12 features).
+
+\textbf{Center-Only Feature Ablation}: Features are extracted across two concentric regions: the entire image (\textbf{Global}, 205-d) and the central $60\%$ bounding box (\textbf{Center Core}, 205-d). In our ablated configuration, all 205 \texttt{global\_} features are discarded, restricting the classifier strictly to the core 205-d fecal descriptor and completely blinding it to outer bedding substrates. Models evaluated include Random Forest, XGBoost, and SVM with RBF kernel, scaled strictly on training statistics.
+
+\subsection{Out-of-Distribution Feature Gating}
+To intercept non-fecal farm distractors before disease classification, we formulate an OOD rejection gate evaluating six scoring functions: (1) Maximum Softmax Probability (MSP), (2) Maximum Logit Score (MLS), (3) Free Energy Scoring ($T=1.63$), (4) SVM Decision Margin, (5) Deep Cosine Feature Distance (scoring penultimate 1280-d EfficientNet-B0 embeddings $\mathbf{z}$ against class centroid prototypes $\boldsymbol{\mu}_c$):
+\begin{equation}
+S_{\text{Deep}}(\mathbf{x}) = - \min_{c} \left( 1 - \frac{\mathbf{z}^T \boldsymbol{\mu}_c}{\|\mathbf{z}\| \|\boldsymbol{\mu}_c\|} \right),
+\label{eq:deep_ood}
+\end{equation}
+and (6) Classical Core Distance (minimum Euclidean distance in standardized 205-d center-only space to training class centroids). Thresholds $\tau$ are calibrated on validation data to enforce a strict $95.0\%$ in-distribution True Positive Rate (TPR). Samples with $S(\mathbf{x}) < \tau$ trigger an immediate \texttt{INVALID\_SAMPLE} halt.
+
+\section{Experimental Setup}
+
+\subsection{Hyperparameters and Optimization}
+All experiments run with locked random seeds (\texttt{SEED = 42}). Convolutional networks are implemented in PyTorch using \texttt{timm}. Optimization uses AdamW with initial learning rate $10^{-5}$, weight decay $10^{-4}$, and cosine annealing schedules. Data augmentations include random horizontal and vertical flips ($p=0.5$), random rotations ($\pm 20^\circ$) with reflection padding, and contrast jitter ($0.1$). Critically, hue and saturation jitter are locked to 0.0, and MixUp/CutMix are banned to avoid corrupting pathological bile and hemoglobin spectral boundaries. Early stopping monitors validation macro-F1 with patience of 4 epochs. Classical models are trained with scikit-learn and XGBoost: Random Forest (200 trees, max depth 16), XGBoost (200 estimators, max depth 6, $\eta=0.1$), and SVM RBF ($C=5.0$, $\gamma=\text{scale}$). Hyperparameters are tuned via 5-fold grouped cross-validation on the training set.
+
+\subsection{Evaluation Metrics}
+Diagnostic efficacy is quantified via Macro-Averaged F1-score, Overall Accuracy, Per-Class Sensitivity (Recall), Specificity, and One-vs-Rest ROC-AUC. Calibration is assessed via Expected Calibration Error (ECE) and Brier Score. OOD discrimination is evaluated via AUROC, False Positive Rate at 95\% TPR (FPR@95), and empirical distractor rejection rate. Inference latency is profiled on a standard x86 CPU core over 100 benchmark iterations.
+
+\section{Results and Benchmark Analysis}
+
+\subsection{Primary Diagnostic Performance}
+Comprehensive evaluation across diagnostic paradigms on the identical held-out, leak-free test partition ($N=1{,}209$) is presented in Table~\ref{tab:master_benchmark}.
+
+\begin{table}[htbp]
+\caption{Diagnostic Benchmark on Leak-Free Test ($N=1{,}209$) and Hard Subsets ($n=374$)}
+\centering\footnotesize
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{lcccccc}
+\toprule
+\textbf{Model / Feature Set} & \textbf{Acc.} & \textbf{F1} & \textbf{H-Acc.} & \textbf{H-F1} & \textbf{NCD-H} & \textbf{Lat.} \\
+\midrule
+BaselineCNN (Scratch) & 88.2\% & 0.848 & 81.8\% & 0.781 & 84.8\% & 5.1ms \\
+MobileNetV2-100 & 88.1\% & 0.850 & 83.4\% & 0.791 & 84.8\% & 10.8ms \\
+EfficientNet-B0 (PyTorch) & 89.4\% & 0.871 & 86.9\% & 0.820 & \textbf{93.9\%} & 13.4ms \\
+EfficientNet-B0 (ONNX) & 89.4\% & 0.871 & 86.9\% & 0.820 & \textbf{93.9\%} & \textbf{4.7ms} \\
+Random Forest (410-d) & 92.1\% & 0.887 & 88.2\% & 0.851 & 81.8\% & 20.5ms \\
+XGBoost (410-d) & 94.1\% & 0.923 & 90.9\% & 0.881 & 84.8\% & 20.5ms \\
+SVM RBF (Full 410-d) & \textbf{95.3\%} & \textbf{0.943} & \textbf{92.8\%} & \textbf{0.910} & \textbf{93.9\%} & 20.8ms \\
+\textbf{SVM RBF (Center 205-d)} & \textbf{93.6\%} & \textbf{0.920} & \textbf{89.8\%} & \textbf{0.869} & 78.8\% & \textbf{14.2ms} \\
+XGBoost (Center 205-d) & 93.0\% & 0.903 & 88.8\% & 0.840 & 72.7\% & 14.1ms \\
+\bottomrule
+\end{tabular}%
+}
+\label{tab:master_benchmark}
+\end{table}
+
+The from-scratch BaselineCNN achieves an accuracy of $88.17\%$ and macro-F1 of $0.8480$. Transfer learning with EfficientNet-B0 elevates test accuracy to $89.41\%$ and macro-F1 to $0.8714$, with an average One-vs-Rest ROC-AUC of $0.9830$ (Coccidiosis: 0.9903, Newcastle: 0.9874, Salmonella: 0.9820, Healthy: 0.9724). Inverse frequency weighting neutralizes minority Newcastle recall lag, capturing $76/84$ cases ($90.48\%$ recall, Fig.~\ref{fig:confusion_matrices}a). Crucially, test accuracy of $89.41\%$ under our leak-free grouped split sits well below the $95$--$98\%$ accuracies reported by Machuve et al. \cite{machuve2022poultry}, confirming that naive random splits evaluate models on near-duplicate burst twins, inflating reported scores.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.94\columnwidth]{figures/confusion_matrix_efficientnet_b0.png}\\[0.5ex]
+\includegraphics[width=0.94\columnwidth]{figures/confusion_matrix_classical_best.png}
+\caption{Test set confusion matrices ($N=1{,}209$): (top) EfficientNet-B0 (Macro-F1: $0.8714$, NCD recall $90.48\%$); (bottom) Center-Only SVM RBF (Macro-F1: $0.9195$, Healthy recall $93.91\%$).}
+\label{fig:confusion_matrices}
+\end{figure}
+
+\subsection{Substrate Stress-Testing and Shortcut Ablation}
+To test whether models learned true pathology or relied on background bedding shortcuts, we partitioned the test set into a \textbf{Hard Subset} ($n=374$, $30.9\%$ of the test set). The hard subset consists strictly of test images photographed on that class's minority substrate clusters identified in Section~III-B: Healthy on dark soil/red litter/straw ($n=54$), Coccidiosis on wood shavings/straw ($n=114$), Newcastle Disease on soil/red litter/straw ($n=33$), and Salmonella on soil/red litter/straw ($n=173$).
+
+\begin{table}[htbp]
+\caption{Diagnostic Recall Breakdown: General Test ($N=1{,}209$) vs.\ Hard Subsets ($n=374$)}
+\centering\footnotesize
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{lcccccc}
+\toprule
+\textbf{Diagnostic} & \multicolumn{2}{c}{\textbf{EfficientNet-B0 (CNN)}} & \multicolumn{2}{c}{\textbf{SVM RBF (Full 410-d)}} & \multicolumn{2}{c}{\textbf{SVM RBF (Center 205-d)}} \\
+\cmidrule(lr){2-3} \cmidrule(lr){4-5} \cmidrule(lr){6-7}
+\textbf{Class} & \textbf{Overall} & \textbf{Hard Rec.} & \textbf{Overall} & \textbf{Hard Rec.} & \textbf{Overall} & \textbf{Hard Rec.} \\
+\midrule
+Coccidiosis & 92.70\% & 90.35\% & 97.30\% & 92.98\% & 95.14\% & 91.23\% \\
+Healthy & 86.15\% & \textbf{68.52\%} & 93.91\% & \textbf{81.48\%} & 93.91\% & \textbf{79.63\%} \\
+Newcastle & 90.48\% & \textbf{93.94\%} & 88.10\% & \textbf{93.94\%} & 80.95\% & \textbf{78.79\%} \\
+Salmonella & 89.09\% & 89.02\% & 96.19\% & 95.95\% & 94.92\% & 94.22\% \\
+\midrule
+\textbf{Macro-F1} & \textbf{0.8714} & \textbf{0.8204} & \textbf{0.9428} & \textbf{0.9103} & \textbf{0.9195} & \textbf{0.8690} \\
+\bottomrule
+\end{tabular}%
+}
+\label{tab:hard_breakdown}
+\end{table}
+
+On this hard subset, EfficientNet-B0 accuracy drops to $86.90\%$ (macro-F1: $0.8204$). As shown in Table~\ref{tab:hard_breakdown}, performance degradation is heavily asymmetrical: Coccidiosis ($90.35\%$ recall) and Salmonella ($89.02\%$ recall) remain robust on atypical substrates. However, \textbf{Healthy recall collapses by 17.63\,pp}, dropping from $86.15\%$ overall to $68.52\%$ on non-wood bedding. When normal droppings sit on dark earth, the absence of familiar wood shavings leads the CNN to trigger false alarms.
+
+\textbf{Feature Ablation Analysis}: The full classical model (SVM RBF, 410-d) achieved $95.29\%$ overall accuracy and $0.9428$ macro-F1 (Fig.~\ref{fig:confusion_matrices}b). When all 205 \texttt{global\_} features were stripped, macro-F1 decreased from $0.9428$ to $0.9195$ (-0.0233) and hard macro-F1 dropped from $0.9103$ to $0.8690$ (-0.0413), confirming background reliance.
+
+However, even when completely blinded to peripheral bedding, \textbf{Center-Only SVM (205-d) achieves $93.55\%$ accuracy and $0.9195$ macro-F1}, outperforming EfficientNet-B0 ($89.41\%$ / $0.8714$) on the full test set and on the hard subset ($0.8690$ vs.\ $0.8204$). Furthermore, Center-Only SVM mitigates the Healthy false-alarm vulnerability, elevating Healthy hard recall to $79.63\%$ ($+11.11$\,pp over the CNN).
+
+\subsection{Veterinary Sensitivity Trade-Off on Newcastle Disease}
+While Center-Only SVM dominates aggregate metrics and background immunity, granular inspection uncovers a critical clinical trade-off: on the hard-subset minority bedding slice ($n=33$), \textbf{Center-Only SVM Newcastle recall collapses to 78.79\%, whereas EfficientNet-B0 retains 93.94\%} (a 15.15\,pp lag). Because Newcastle Disease is an acute, flock-decimating paramyxovirus, missed outbreaks carry severe biosecurity costs. The deep CNN's hierarchical representations capture subtle textural features of atypical greenish-white discharges that engineered center-only features partially miss. This demonstrates that neither architecture strictly dominates: Center-Only SVM provides background-robust specificity, whereas EfficientNet-B0 delivers superior viral sensitivity.
+
+\subsection{Explainability Audit and Activation Drift}
+Grad-CAM was evaluated targeting the penultimate \texttt{conv\_head} of EfficientNet-B0 across 24 test samples (3 correct and 3 incorrect per class). Spatial activation energy was quantified in the central 70\% bounding region versus the 15\% outer border: on the general test set, correct predictions exhibited $77.4\%$ mean central energy, focusing tightly on crimson mucoid cores in Coccidiosis and yellow urates in Salmonella. On the hard minority subset, mean central energy dropped to \textbf{52.80\%}. On low-contrast droppings (e.g., sample \texttt{pcrsalmo.242.jpg}, Salmonella on straw misclassified as Healthy), central energy collapsed to \textbf{17.16\%}, with $82.84\%$ of activation drifting into surrounding straw filaments. This quantitative audit confirms that peripheral background distraction is the primary physical failure mechanism for convolutional architectures in poultry pens.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.94\columnwidth]{figures/calibration_curves_efficientnet_b0.png}
+\caption{Reliability calibration diagram for EfficientNet-B0 before and after temperature scaling ($T = 1.6302$), cutting ECE from $5.50\%$ to $2.63\%$ (a 52.2\% error reduction).}
+\label{fig:calibration}
+\end{figure}
+
+\subsection{Uncertainty Calibration}
+Unscaled EfficientNet-B0 outputs exhibited an ECE of $5.50\%$ with NLL of $0.3675$. Fitting temperature scaling on the validation set yielded an optimal scalar $T = 1.6302$, cutting ECE to \textbf{2.63\%} (a $52.2\%$ relative error reduction, Fig.~\ref{fig:calibration}) and reducing NLL to $0.3046$. This ensures that confidence scores displayed in field applications reflect authentic empirical hit rates.
+
+\subsection{Out-of-Distribution Gating and Projection Bias}
+The 300-image real-world OOD benchmark evaluated six detection mechanisms against footwear, hands, tools, and unsoiled soils (Table~\ref{tab:ood_benchmark}).
+
+\begin{table}[htbp]
+\caption{Out-of-Distribution Detection Benchmark on Real Distractors ($N=300$)}
+\centering\footnotesize
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{lcccc}
+\toprule
+\textbf{Detection Method} & \textbf{Feature Space} & \textbf{AUROC} & \textbf{OOD Rej. (\%)} & \textbf{FPR@95} \\
+\midrule
+Maximum Softmax Prob. (MSP) & Softmax (4-d) & 0.8279 & 21.33\% & 78.67\% \\
+Free Energy ($T=1.63$) & Logits (4-d) & 0.8405 & 23.00\% & 77.00\% \\
+Maximum Logit Score (MLS) & Logits (4-d) & 0.8495 & 23.33\% & 76.67\% \\
+SVM Decision Margin & Center Feats (205-d) & 0.9324 & 74.00\% & 26.00\% \\
+Classical Core Distance & Center Feats (205-d) & 0.9882 & 92.67\% & 7.33\% \\
+\textbf{Deep Cosine Distance} & \textbf{Embeddings (1280-d)} & \textbf{0.9966} & \textbf{98.00\%} & \textbf{2.00\%} \\
+\bottomrule
+\end{tabular}%
+}
+\label{tab:ood_benchmark}
+\end{table}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.94\columnwidth]{figures/ood_roc_curves.png}
+\caption{ROC curves for six OOD detection scoring methods on the farm distractor benchmark ($N=300$). Deep Cosine Feature Distance dominates at AUROC $0.9966$.}
+\label{fig:ood_roc}
+\end{figure}
+
+Logit-based methods failed completely, rejecting only $21.3$--$23.3\%$ of distractors and admitting over $76\%$ of boots and hands. This failure stems from \textbf{ImageNet linear projection bias}: because EfficientNet-B0 was pretrained on 1,000 object categories including apparel and footwear, its 1280-d feature vectors for boots and hands possess large norms. In a 4-class linear head ($W \in \mathbb{R}^{4 \times 1280}$), high-norm vectors inevitably project strongly onto at least one diagnostic weight vector by chance, yielding large positive logits ($+2.0$ to $+4.5$). Conversely, genuine fecal images with dark backgrounds produce muted logits ($-2.0$ to $+1.0$), inverting logit energy separation.
+
+In contrast, representation-space methods succeed: \textbf{Deep Cosine Distance achieves an AUROC of 0.9966} (Fig.~\ref{fig:ood_roc}) and \textbf{98.00\% OOD rejection} ($100\%$ rejection on boots, hands, and tools; 6 bare red clay soils passed), with only a $3.72\%$ false rejection rate on valid test stools. For lightweight edge setups, Classical Core Distance achieves $92.67\%$ OOD rejection (AUROC 0.9882) without requiring neural inference.
+
+\subsection{Edge Optimization and Dynamic Quantization Breakdown}
+Profiling exported models on CPU over 100 benchmark iterations revealed sharp architectural trade-offs (Table~\ref{tab:export_benchmark}).
+
+\begin{table}[htbp]
+\caption{Edge Inference and Quantization Profiling on CPU}
+\centering\footnotesize
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{lcccc}
+\toprule
+\textbf{Runtime Engine} & \textbf{Precision} & \textbf{Size (MB)} & \textbf{Latency (ms)} & \textbf{Top-1 Aggr. (\%)} \\
+\midrule
+PyTorch Benchmark & FP32 & 15.58 & 13.40 & 100.00\% (Base) \\
+ONNX Runtime Engine & FP32 & 15.28 & \textbf{4.65} (215 FPS) & \textbf{100.00\%} \\
+ONNX Dynamic Quantized & INT8 & \textbf{4.11} & 20.97 (48 FPS) & \textbf{15.50\%} \\
+SVM RBF (Center-Only) & FP64 & \textbf{2.65} & \textbf{14.20} (70 FPS) & N/A \\
+\bottomrule
+\end{tabular}%
+}
+\label{tab:export_benchmark}
+\end{table}
+
+Exporting EfficientNet-B0 to ONNX FP32 yielded a \textbf{2.88$\times$ speedup} on CPU ($4.65$\,ms/image, 214.9 FPS) with $100.00\%$ numerical fidelity (MAE $6.8 \times 10^{-6}$). However, dynamic INT8 quantization caused a catastrophic collapse: Top-1 agreement with PyTorch plunged to \textbf{15.50\%} (MAE 5.2854), while inference slowed by 4.5$\times$ to $20.97$\,ms due to runtime dequantization overhead.
+
+A controlled ablation isolating the final linear head confirmed that quantizing the head alone preserved $100.00\%$ agreement. The breakdown originates entirely within EfficientNet's 81 depthwise separable convolutions (\texttt{Conv2d(3x3, groups=C)}): because depthwise kernels accumulate over only 9 spatial pixels per channel, quantizing weights without activation calibration tensors induces severe rounding errors that compound across SiLU activation wells. Thus, dynamic INT8 is unviable for mobile depthwise CNNs, establishing ONNX FP32 as the required production engine.
+
+\section{Discussion and Operational Limitations}
+To uphold engineering and clinical integrity, seven structural limitations of vision-based poultry screening are documented:
+\begin{enumerate}\setlength{\itemsep}{0.4pt}\setlength{\parskip}{0pt}\setlength{\parsep}{0pt}
+    \item \textbf{Healthy-Substrate Confounder}: Because $86.5\%$ of healthy droppings sat on wood shavings, deep models suffer a 17.63\,pp recall collapse on bare dirt or straw bedding. Disease sensitivity remains high, but clearing a bird as healthy is partially substrate-sensitive.
+    \item \textbf{Newcastle Sensitivity Trade-Off}: While Center-Only SVM eliminates bedding shortcuts (macro-F1 $0.9195$), it suffers a 15.15\,pp recall deficit ($78.79\%$ vs.\ $93.94\%$) on atypical Newcastle cases. Systems should trigger a CNN consensus alert when viral infection is suspected.
+    \item \textbf{Geographic and Breed Bias}: Imagery was sourced exclusively from smallholder farms in Arusha and Kilimanjaro, Tanzania (*kuku wa kienyeji*). Pigmentation shifts are expected across commercial caged housing, exotic broilers, or alternative feed rations.
+    \item \textbf{Minority Class Imbalance}: Newcastle comprises only 562 total images (1:4.5 imbalance against Salmonella). Small absolute test counts ($n=84$ total, $n=33$ hard subset) mean per-cluster viral estimates carry wider variance.
+    \item \textbf{Screening Tool vs.\ Etiological Diagnosis}: Fecal imaging captures gross bowel pathology but cannot confirm microscopic etiology. Mild Coccidiosis and early Salmonella produce overlapping yellowish-green mucoid feces. Vision triage requires veterinary PCR confirmation before medication.
+    \item \textbf{Data Leakage in Published Literature}: Published benchmarks claiming $>95\%$ accuracy on this dataset utilized naive random splitting that leaked near-duplicate burst frames across partitions. Our leak-free grouped split metrics ($89.41\%$ for CNN, $93.55\%$ for SVM) reflect authentic generalization.
+    \item \textbf{Manifold and Sensor Brittleness}: Penultimate cosine distance gating narrowly rejected external stock photos of genuine droppings (scores $-0.4819$ to $-0.5297$ vs.\ threshold $-0.4585$). Distance profiling confirms they sit in the 1.3--2.7\% calibration tail, showing that deep representations capture camera sensor profiles, perpendicular angles, and ambient illumination alongside fecal morphology.
+\end{enumerate}
+
+\section{Conclusion}
+This work presented an audited machine learning framework for vision-based poultry disease triage. By eliminating photographic burst leakage via perceptual hashing and graph connected-component partitioning, we demonstrated that true generalized neural accuracy on the PCR-verified Tanzanian benchmark is $89.41\%$ (macro-F1 $0.8714$). An empirical confounder audit uncovered severe bedding substrate bias ($\chi^2 = 3{,}159.75, V = 0.361$), which causes neural Healthy recall to collapse by 17.63\,pp on atypical pen floors. Ablating peripheral features and training an SVM strictly on the central 60\% fecal core eliminated substrate shortcuts while outperforming deep CNNs ($93.55\%$ accuracy, $0.9195$ macro-F1, 2.65\,MB footprint), though at the cost of reduced recall on atypical Newcastle Disease ($78.79\%$ vs.\ $93.94\%$). For operational safety, we proved that logit-based OOD scoring admits 77\% of non-fecal farm distractors due to ImageNet linear projection bias, whereas deep cosine distance achieves $98.00\%$ OOD rejection (100\% on footwear, skin, and tools; AUROC 0.9966). Finally, ONNX FP32 delivers 214.9 FPS on CPU, while dynamic INT8 destroys depthwise separable accuracy ($15.50\%$). These findings establish that split auditing, background ablation, and representation-level OOD gating are essential prerequisites for deploying dependable computer vision in smallholder livestock agriculture.
+
+\section*{Acknowledgment}
+The author thanks the open-source contributors of the Tanzanian poultry pathology benchmark \cite{machuve2022poultry} and the veterinary research community supporting smallholder livestock biosecurity.
+
+\begin{thebibliography}{00}\footnotesize\setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}
+\bibitem{machuve2022poultry}
+D.~Machuve, E.~Nwankwo, N.~Mduma, and J.~Mbelwa, ``Poultry diseases diagnostics models using deep learning,'' \emph{Front. Artif. Intell.}, vol.~5, p. 911190, 2022, doi: 10.3389/frai.2022.911190.
+\bibitem{fao2020poultry}
+Food and Agriculture Organization of the United Nations (FAO), \emph{Biosecurity Guide for Prevention and Control of Avian Diseases in Small-Scale Poultry Operations}, FAO Animal Production and Health Guidelines No. 24, Rome, Italy, 2020.
+\bibitem{adeyemo2021poultry}
+G.~O. Adeyemo, ``Biosecurity practices among smallholder poultry farmers in developing nations: Challenges and epidemiological implications,'' \emph{Trop. Anim. Health Prod.}, vol.~53, no.~3, p. 382, 2021.
+\bibitem{owomugisha2021machine}
+G.~Owomugisha, J.~A. Quinn, F.~Mwebaze, and J.~Biehl, ``Automated vision-based diagnosis of crop and livestock diseases using edge computing,'' \emph{Comput. Electron. Agric.}, vol. 187, p. 106297, 2021.
+\bibitem{zhuang2018automated}
+X.~Zhuang, T.~Zhang, B.~Xiao, and X.~Shen, ``Automated detection of sick broilers using sound technology and deep learning,'' \emph{Biosyst. Eng.}, vol. 174, pp. 124--133, 2018.
+\bibitem{petchiammal2023paddy}
+Petchiammal, B.~Kiruba, Murugan, and P.~Arjunan, ``Paddy Doctor: A Visual Image Dataset for Automated Paddy Disease Classification and Benchmarking,'' in \emph{Proc. 6th Joint Int. Conf. Data Sci. Manage. Data (CODS-COMAD)}, 2023, pp. 203--207.
+\bibitem{barbedo2018factors}
+J.~G.~A. Barbedo, ``Factors influencing the use of deep learning for plant disease recognition,'' \emph{Biosyst. Eng.}, vol. 172, pp. 84--91, 2018, doi: 10.1016/j.biosystemseng.2018.05.013.
+\bibitem{geirhos2020shortcut}
+R.~Geirhos, J.~H. Jacobsen, C.~Michaelis, R.~Zemel, W.~Brendel, M.~Bethge, and F.~A. Wichmann, ``Shortcut learning in deep neural networks,'' \emph{Nat. Mach. Intell.}, vol.~2, no.~11, pp. 665--673, 2020.
+\bibitem{lapuschkin2019unmasking}
+S.~Lapuschkin, S.~W{\"a}ldchen, A.~Binder, G.~Montavon, W.~Samek, and K.-R. M{\"u}ller, ``Unmasking Clever Hans predictors and assessing what machines really learn,'' \emph{Nat. Commun.}, vol.~10, no.~1, p. 1096, 2019.
+\bibitem{selvaraju2017grad}
+R.~R. Selvaraju, M.~Cogswell, A.~Das, R.~Vedantam, D.~Parikh, and D.~Batra, ``Grad-CAM: Visual explanations from deep networks via gradient-based localization,'' in \emph{Proc. IEEE Int. Conf. Comput. Vis. (ICCV)}, 2017, pp. 618--626.
+\bibitem{hendrycks2017baseline}
+D.~Hendrycks and K.~Gimpel, ``A baseline for detecting misclassified and out-of-distribution examples in neural networks,'' in \emph{Proc. Int. Conf. Learn. Represent. (ICLR)}, 2017.
+\bibitem{liu2020energy}
+W.~Liu, X.~Wang, J.~Owens, and Y.~Li, ``Energy-based out-of-distribution detection,'' in \emph{Adv. Neural Inf. Process. Syst. (NeurIPS)}, vol.~33, 2020, pp. 21464--21475.
+\bibitem{sun2022knn}
+Y.~Sun, Y.~Ming, X.~Zhu, and Y.~Li, ``Out-of-distribution detection with deep nearest neighbors,'' in \emph{Proc. Int. Conf. Mach. Learn. (ICML)}, 2022, pp. 20827--20840.
+\bibitem{tan2019efficientnet}
+M.~Tan and Q.~V. Le, ``EfficientNet: Rethinking model scaling for convolutional neural networks,'' in \emph{Proc. Int. Conf. Mach. Learn. (ICML)}, 2019, pp. 6105--6114.
+\bibitem{sandler2018mobilenetv2}
+M.~Sandler, A.~Howard, M.~Zhu, A.~Zhmoginov, and L.-C. Chen, ``MobileNetV2: Inverted residuals and linear bottlenecks,'' in \emph{Proc. IEEE Conf. Comput. Vis. Pattern Recognit. (CVPR)}, 2018, pp. 4510--4520.
+\bibitem{guo2017calibration}
+C.~Guo, G.~Pleiss, Y.~Sun, and K.~Q. Weinberger, ``On calibration of modern neural networks,'' in \emph{Proc. Int. Conf. Mach. Learn. (ICML)}, 2017, pp. 1321--1330.
+\bibitem{cortes1995support}
+C.~Cortes and V.~Vapnik, ``Support-vector networks,'' \emph{Mach. Learn.}, vol.~20, no.~3, pp. 273--297, 1995.
+\end{thebibliography}
+
+\end{document}
