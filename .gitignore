@@ -64,3 +64,4 @@ reports/figures/*
 # Temporary application artifacts
 app/temp_input.jpg
 *.tmp
+.~lock.*#
