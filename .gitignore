@@ -22,18 +22,23 @@ data/splits/*
 runs/*
 !runs/.gitkeep
 !runs/classical/
+runs/classical/*
 !runs/classical/svm_center_only.joblib
 !runs/classical/scaler_center_only.joblib
 !runs/ood/
+runs/ood/*
 !runs/ood/classical_train_prototypes.npy
 !runs/ood/cnn_train_prototypes.npy
 !runs/ood/ood_config.json
 !runs/export/
+runs/export/*
 !runs/export/efficientnet_b0_dual.onnx
 !runs/20260920_215109_efficientnet_b0_weighted_ce/
+runs/20260920_215109_efficientnet_b0_weighted_ce/*
 !runs/20260920_215109_efficientnet_b0_weighted_ce/best_model.pth
 !runs/20260920_215109_efficientnet_b0_weighted_ce/temperature.json
 !runs/multimodal/
+runs/multimodal/*
 !runs/multimodal/best_multimodal_model.pth
 !runs/multimodal/meta_scaler.json
 

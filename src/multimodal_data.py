@@ -25,7 +25,7 @@ def generate_clinical_metadata(df: pd.DataFrame, seed: int = 42) -> pd.DataFrame
     """Generates realistic clinical metadata features aligned with veterinary pathology standards."""
     rng = np.random.default_rng(seed)
     n = len(df)
-    
+
     mortality = np.zeros(n, dtype=np.float32)
     water_drop = np.zeros(n, dtype=np.float32)
     feed_drop = np.zeros(n, dtype=np.float32)
@@ -113,8 +113,7 @@ class MultimodalPoultryDataset(Dataset):
     def __getitem__(self, idx):
         row = self.df.iloc[idx]
         img_path = self.root_dir / row["filepath"]
-        
-        # Fallback if path is relative
+
         if not img_path.exists():
             img_path = self.root_dir / "data" / row["filepath"]
 
@@ -128,8 +127,8 @@ class MultimodalPoultryDataset(Dataset):
             m = self.scaler["mean"][col]
             s = self.scaler["std"][col]
             meta_vals.append((val - m) / s)
-            
+
         meta_tensor = torch.tensor(meta_vals, dtype=torch.float32)
         label_idx = CLASS_TO_IDX[row["label"]]
-        
+
         return img_tensor, meta_tensor, torch.tensor(label_idx, dtype=torch.long)

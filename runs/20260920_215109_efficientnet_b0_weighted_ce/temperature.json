@@ -1,6 +1,6 @@
 {
   "backbone": "efficientnet_b0",
-  "checkpoint": "/home/sahith/Projects/Chicken/runs/20260920_215109_efficientnet_b0_weighted_ce/best_model.pth",
+  "checkpoint": "runs/20260920_215109_efficientnet_b0_weighted_ce/best_model.pth",
   "temperature": 1.6301593780517578,
   "pre_scaling": {
     "ece": 0.05498526720491891,
